@@ -1,0 +1,26 @@
+Psyched is a simple, fast scheduling application for planning your life.
+It is task and appointment based, with fast easy operations for adding,
+modifying and annotating both tasks and appointments.
+
+Primary paradigms/features:
+	Modification
+		time conflicts/near conflicts
+	Viewing
+		simple zoom to any period
+			both relative and absolute date
+			paging through
+		scale selection (day/3day/week)
+
+Usability features
+	Usable with 100% keyboard
+	t - task (create task)
+	a - appointment (unconnected to task)
+	n - annotate (add or edit notes on a task for item)
+	s - schedule task (add an appointment to a task)
+	r - reschedule task (bring up editable list of appointments for task)
+	pgup - previous day
+	pgdown - next day
+
+UI Modes
+	By Date
+	By Task
