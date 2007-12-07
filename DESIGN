@@ -11,10 +11,9 @@ Primary paradigms/features:
 			paging through
 		scale selection (day/3day/week)
 
-Usability features
-	Usable with 100% keyboard
-	t - task (create task)
-	a - appointment (unconnected to task)
+Operations
+	task (create task)
+	create appointment (unconnected to task)
 	n - annotate (add or edit notes on a task for item)
 	s - schedule task (add an appointment to a task)
 	r - reschedule task (bring up editable list of appointments for task)
