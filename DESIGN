@@ -11,15 +11,20 @@ Primary paradigms/features:
 			paging through
 		scale selection (day/3day/week)
 
-Operations
-	task (create task)
-	create appointment (unconnected to task)
-	n - annotate (add or edit notes on a task for item)
-	s - schedule task (add an appointment to a task)
-	r - reschedule task (bring up editable list of appointments for task)
-	pgup - previous day
-	pgdown - next day
+Version	Feature
+0	task (create task)
+0	create appointment (unconnected to task)
+1	annotate (add or edit notes on a task for item)
+0	schedule task (add an appointment to a task)
+		default text is the name of the task
+0		schedule with date and time
+0		schedule just date
+0		schedule due date
+	reschedule task (bring up editable list of appointments for task)
 
 UI Modes
-	By Date
-	By Task
+Schedule
+	Show All
+	Show Subset
+Tasks
+	By Due Date
