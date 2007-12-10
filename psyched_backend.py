@@ -35,6 +35,11 @@ class PsychedBackend :
 		self.cursor.execute('create table sched (id integer primary key autoincrement, text blob, duration integer null)')
 		self.conn.commit()
 
+	'''Get a setting
+
+	If the setting exists, it is returned as a unicode string.
+	If it does not exist, returns None
+	'''
 	def setting_get(self, id) :
 		s = self.cursor.execute('select setting from settings where id=?', (id,)).fetchall()
 		if len(s) == 0 :
@@ -45,6 +50,10 @@ class PsychedBackend :
 		else :
 			raise RuntimeError, 'Multiple instances of one setting: ' + str(id)
 
+	'''Unset a setting
+
+	If the setting exists, it is unset.
+	'''
 	def setting_unset(self, id) :
 		s = self.cursor.execute('select id from settings where id=?', (id,)).fetchall()
 		if len(s) == 1 :
@@ -54,6 +63,10 @@ class PsychedBackend :
 			raise RuntimeError, 'Multiple instances of one setting: ' + str(id)
 		self.conn.commit()
 
+	'''Set a setting
+
+	If the setting is set already, it is overwritten.
+	'''
 	def setting_set(self, id, data) :
 		s = self.cursor.execute('select id from settings where id=?', (id,)).fetchall()
 		if len(s) == 0 :
@@ -65,6 +78,10 @@ class PsychedBackend :
 		self.conn.commit()
 		
 
+	'''Get the working directory
+
+	On UNIX systems, this is ~/.psyched.  Other systems are currently not supported.
+	'''
 	def get_directory(self) :
 		dir = os.path.join(os.path.expanduser('~'), '.psyched')
 		try:
