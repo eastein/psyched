@@ -1,3 +1,10 @@
+'''
+Psyched is a scheduling and task management application.
+
+Copyright 2007 Eric Stein
+License: GPL2/GPL3, at your option.
+'''
+
 import os
 import sys
 import time
@@ -39,7 +46,7 @@ class PsychedBackend :
 		# create the tables
 		self.cursor.execute('create table settings (id integer primary key, setting blob)')
 		self.cursor.execute('create table task (id integer primary key autoincrement, text blob, due integer null, complete integer)')
-		self.cursor.execute('create table sched (id integer primary key autoincrement, text blob, ts integer, duration integer, complete integer), task integer key')
+		self.cursor.execute('create table sched (id integer primary key autoincrement, text blob, ts integer, duration integer, complete integer, task integer key)')
 		self.conn.commit()
 
 	'''Default settings

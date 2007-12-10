@@ -1,10 +1,10 @@
 #!/usr/bin/env python
-'''Psyched
-
-Psyched is a scheduling and task management application.
 '''
-## Author: Eric Stein
-## Licence GPL2/GPL3
+Psyched is a scheduling and task management application.
+
+Copyright 2007 Eric Stein
+License: GPL2/GPL3, at your option.
+'''
 
 import gtk
 import gobject
