@@ -34,11 +34,19 @@ class Psyched(gtk.Window) :
 		self.set_default_size(450,600)
 		self.set_border_width(0)
 
-		schedule = gtk.VBox(homogeneous=False, spacing=0)
-		schedule.fill = False
-		self.set_border_width(5)
-		tasks = gtk.VPaned()
-		self.set_border_width(5)
+		schedule_ = gtk.VBox(homogeneous=False, spacing=4)
+		schedule_.set_border_width(5)
+		tasks_ = gtk.VBox(homogeneous=False, spacing=4)
+		tasks_.set_border_width(5)
+
+		schedule = gtk.ScrolledWindow()
+		schedule.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
+		tasks = gtk.ScrolledWindow()
+		tasks.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
+
+		schedule.add_with_viewport(schedule_)
+		tasks.add_with_viewport(tasks_)
+
 		slabel = gtk.Label("Schedule")
 		tlabel = gtk.Label("Tasks")
 
@@ -51,7 +59,7 @@ class Psyched(gtk.Window) :
 #		treeview = self.create_tree(daylist)
 #		self.add_columns(treeview)
 #		schedule.add(treeview)
-		self.add_items_to_vbox(schedule, self.iterate_get(3, 5, 6))
+		self.add_items_to_vbox(schedule_, self.iterate_get(3, 5, 6))
 
 		self.timer = BackgroundTimer()
 		self.timer.start()
