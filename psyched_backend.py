@@ -78,10 +78,10 @@ class PsychedBackend :
 	def fetch_undated_tasks(self) :
 		return self.cursor.execute('select id,text,due,complete from task where due isnull').fetchall()
 
-	def fetch_sched_tasks(self, sid) :
-		return self.cursor.execute('select task.id,task.text,task.due,task.complete from sched,task where sched.id=? and sched.task=task.id').fetchall()
-
 # SCHEDULE
+	def fetch_task_sched(self, tid) :
+		return self.cursor.execute('select sched.id,sched.text,sched.ts,sched.duration,sched.complete,sched.task from sched,task where task.id=? and sched.task=task.id', (tid, )).fetchall()
+
 	def fetch_schedule(self, timestamp, range) :
 		return self.cursor.execute('select id,text,ts,duration,complete,task from sched where ts>=? and ts<=?', (timestamp, timestamp + range)).fetchall()
 
