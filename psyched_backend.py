@@ -22,6 +22,14 @@ uses localtime because mktime requires local time
 def utime() :
 	return time.mktime(time.localtime())
 
+def sec2dur(s) :
+	mins = s / 60
+	m = str(mins % 60)
+	h = str(mins / 60)
+	if len(m) == 1 :
+		m = '0' + m
+	return h + ':' + m
+
 '''Psyched Backend
 
 handles storage, querying, and changes.

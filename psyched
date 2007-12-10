@@ -12,14 +12,21 @@ import random
 import time
 import datetime
 import threading
-import psyched_validate
+import psyched_validate as pv
 import psyched_backend as pb
 
 (
 	COLUMN_TIME,
 	COLUMN_DESC,
-	COLUMN_EDITABLE
-) = range(3)
+	COLUMN_EDITABLE,
+	SCOLUMN_ID,
+	SCOLUMN_TEXT,
+	SCOLUMN_TS,
+	SCOLUMN_TS_,
+	SCOLUMN_DURATION_,
+	SCOLUMN_COMPLETE,
+	SCOLUMN_TASK
+) = range(10)
 
 cont = True
 
@@ -113,6 +120,33 @@ class Psyched(gtk.Window) :
 
 		return treeview
 
+	def create_list_sched(self, list) :
+		model = gtk.ListStore(
+			gobject.TYPE_INT,	#id
+			gobject.TYPE_STRING,	#text
+			gobject.TYPE_INT,	#ts
+			gobject.TYPE_STRING,	#text version of time
+			gobject.TYPE_STRING,	#text version of duration
+			gobject.TYPE_BOOLEAN,	#complete
+			gobject.TYPE_INT	#task
+		)
+
+		iter = model.append()
+		for item in list :
+			(id, text, ts, duration, complete, task) = item
+
+			model.set(iter,
+				SCOLUMN_ID, id,
+				SCOLUMN_TEXT, text,
+				SCOLUMN_TS, ts,
+				SCOLUMN_TS_, time.strftime('%H:%M', time.localtime(ts)),
+				SCOLUMN_DURATION_, pb.sec2dur(duration),
+				SCOLUMN_COMPLETE, bool(complete),
+				SCOLUMN_TASK, task
+			)
+
+			return model
+
 	'''Create List Set
 	'''
 	def create_list_set(self) :
@@ -156,7 +190,7 @@ class Psyched(gtk.Window) :
 			update = new_text
 			# call into storage backend here
 		elif column == COLUMN_TIME :
-			if (psyched_validate.check_time(new_text)) :
+			if (pv.check_time(new_text)) :
 				update = new_text
 				# call into storage backend here
 		if update == None :
