@@ -3,6 +3,11 @@ import sys
 import time
 import pysqlite2.dbapi2 as sqlite
 
+(
+	SETTING_DATAVERSION,
+	SETTING_STANDIN
+) = range(2)
+
 '''GMT unix timestamp
 
 uses localtime because mktime requires local time
@@ -27,6 +32,7 @@ class PsychedBackend :
 			i = self.cursor.execute('select count(*) from sched')
 		except sqlite.OperationalError:
 			self.create_tables()
+			self.initial_settings()
 
 	def create_tables(self) :
 		# create the tables
@@ -34,6 +40,22 @@ class PsychedBackend :
 		self.cursor.execute('create table task (id integer primary key autoincrement, text blob, due integer null)')
 		self.cursor.execute('create table sched (id integer primary key autoincrement, text blob, duration integer null)')
 		self.conn.commit()
+
+	'''Default settings
+
+	Only use this function for initialization - not for resetting settings to default.
+	'''
+	def initial_settings(self) :
+		self.setting_set(SETTING_DATAVERSION, "1")
+
+	'''Fetch dated tasks
+
+	'''
+	def fetch_dated_tasks(self, timestamp, range) :
+		return self.cursor.execute('select id,text,due from task where due>=? and due<=?', (timestamp, timestamp + range)).fetchall()
+
+	def fetch_undated_tasks(self) :
+		return self.cursor.execute('select id,text,due from task where due isnull').fetchall()
 
 	'''Get a setting
 
