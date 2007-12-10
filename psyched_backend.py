@@ -70,6 +70,8 @@ class PsychedBackend :
 		self.cursor.execute('insert into sched (text, ts, duration, complete, task) values (?, ?, ?, ?, ?)', (text, ts, duration, complete, task))
 		return self.cursor.lastrowid
 #--------------------- FETCHERS 
+
+# TASKS
 	def fetch_dated_tasks(self, timestamp, range) :
 		return self.cursor.execute('select id,text,due,complete from task where due>=? and due<=?', (timestamp, timestamp + range)).fetchall()
 
@@ -78,6 +80,10 @@ class PsychedBackend :
 
 	def fetch_sched_tasks(self, sid) :
 		return self.cursor.execute('select task.id,task.text,task.due,task.complete from sched,task where sched.id=? and sched.task=task.id').fetchall()
+
+# SCHEDULE
+	def fetch_schedule(self, timestamp, range) :
+		return self.cursor.execute('select id,text,ts,duration,complete,task from sched where ts>=? and ts<=?', (timestamp, timestamp + range)).fetchall()
 
 #--------------------- SETTINGS
 	'''Get a setting
