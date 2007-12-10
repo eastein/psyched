@@ -38,8 +38,8 @@ class PsychedBackend :
 	def create_tables(self) :
 		# create the tables
 		self.cursor.execute('create table settings (id integer primary key, setting blob)')
-		self.cursor.execute('create table task (id integer primary key autoincrement, text blob, due integer null)')
-		self.cursor.execute('create table sched (id integer primary key autoincrement, text blob, duration integer null)')
+		self.cursor.execute('create table task (id integer primary key autoincrement, text blob, due integer null, complete integer)')
+		self.cursor.execute('create table sched (id integer primary key autoincrement, text blob, ts integer, duration integer, complete integer), task integer key')
 		self.conn.commit()
 
 	'''Default settings
@@ -53,10 +53,10 @@ class PsychedBackend :
 
 	'''
 	def fetch_dated_tasks(self, timestamp, range) :
-		return self.cursor.execute('select id,text,due from task where due>=? and due<=?', (timestamp, timestamp + range)).fetchall()
+		return self.cursor.execute('select id,text,due,complete from task where due>=? and due<=?', (timestamp, timestamp + range)).fetchall()
 
 	def fetch_undated_tasks(self) :
-		return self.cursor.execute('select id,text,due from task where due isnull').fetchall()
+		return self.cursor.execute('select id,text,due,complete from task where due isnull').fetchall()
 
 	'''Get a setting
 
