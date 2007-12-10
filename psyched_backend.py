@@ -41,13 +41,14 @@ class PsychedBackend :
 		except sqlite.OperationalError:
 			self.create_tables()
 			self.initial_settings()
+			self.conn.commit()
 
+#--------------------- INITIALIZATION
 	def create_tables(self) :
 		# create the tables
 		self.cursor.execute('create table settings (id integer primary key, setting blob)')
 		self.cursor.execute('create table task (id integer primary key autoincrement, text blob, due integer null, complete integer)')
 		self.cursor.execute('create table sched (id integer primary key autoincrement, text blob, ts integer, duration integer, complete integer, task integer key)')
-		self.conn.commit()
 
 	'''Default settings
 
@@ -56,6 +57,15 @@ class PsychedBackend :
 	def initial_settings(self) :
 		self.setting_set(SETTING_DATAVERSION, "1")
 
+#--------------------- TRANSACTION SAFETY
+	def action_complete(self) :
+		self.conn.commit()
+
+#--------------------- ADDERS
+	def insert_task(self, text, due) :
+		self.cursor.execute('insert into task (text, due, complete) values (?, ?, ?)', (text, due, 0))
+		return self.cursor.lastrowid
+#--------------------- FETCHERS 
 	'''Fetch dated tasks
 
 	'''
@@ -65,6 +75,7 @@ class PsychedBackend :
 	def fetch_undated_tasks(self) :
 		return self.cursor.execute('select id,text,due,complete from task where due isnull').fetchall()
 
+#--------------------- SETTINGS
 	'''Get a setting
 
 	If the setting exists, it is returned as a unicode string.
@@ -75,7 +86,7 @@ class PsychedBackend :
 		if len(s) == 0 :
 			return None
 		elif len(s) == 1 :
-			(r, ) = s
+			(r, ) = s[0]
 			return r
 		else :
 			raise RuntimeError, 'Multiple instances of one setting: ' + str(id)
@@ -108,6 +119,7 @@ class PsychedBackend :
 		self.conn.commit()
 		
 
+#--------------------- FILE ACCESS
 	'''Get the working directory
 
 	On UNIX systems, this is ~/.psyched.  Other systems are currently not supported.
