@@ -58,7 +58,6 @@ class Psyched(gtk.Window) :
 		
 	def __die__(self, parent=None) :
 		global cont
-		#gtk.main_quit()
 		cont = False
 
 	def dialog(self, s) :
