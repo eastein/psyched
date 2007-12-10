@@ -86,7 +86,7 @@ class Psyched(gtk.Window) :
 			# temp
 			daylist = self.create_list_set()
 			treeview = self.create_tree(daylist)
-			self.add_columns(treeview)
+			self.add_columns(treeview, [(COLUMN_TIME, "Time"), (COLUMN_DESC, "Description")])
 			r.append(treeview)
 		return r
 
@@ -105,7 +105,6 @@ class Psyched(gtk.Window) :
 	def add_items_to_vbox(self, vb, list) :
 		for item in list :
 			vb.pack_start(item, expand=False)
-#			vb.add(item)
 
 	def clear_vbox(self, vb) :
 		vb.forall(vb.remove)
@@ -127,6 +126,8 @@ class Psyched(gtk.Window) :
 			gobject.TYPE_BOOLEAN,	#complete
 			gobject.TYPE_INT	#task
 		)
+
+		model.set_sort_column_id(SCOLUMN_TS_, gtk.SORT_ASCENDING)
 
 		iter = model.append()
 		for item in list :
@@ -157,10 +158,8 @@ class Psyched(gtk.Window) :
 
 		return model
 
-	def add_columns(self, treeview):
+	def add_columns(self, treeview, colset):
 		model = treeview.get_model()
-		
-		colset = [(COLUMN_TIME, "Time"), (COLUMN_DESC, "Description")]
 
 		for col in colset :
 			(cid, ctext) = col
