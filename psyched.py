@@ -129,7 +129,6 @@ class Psyched(gtk.Window) :
 			if (psyched_validate.check_time(new_text)) :
 				update = new_text
 				# call into storage backend here
-		
 		if update == None :
 			self.dialog('Incorrect formatting.')
 		else :

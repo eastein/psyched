@@ -23,6 +23,7 @@ class PsychedBackend :
 	def __init__(self) :
 		os.chdir(self.get_directory())
 		self.conn = sqlite.connect("psyched.db")
+		self.conn.text_factory = str
 		self.cursor = self.conn.cursor()
 
 		# check tables, create if needed
