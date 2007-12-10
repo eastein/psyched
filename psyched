@@ -21,12 +21,11 @@ import psyched_backend as pb
 	COLUMN_EDITABLE,
 	SCOLUMN_ID,
 	SCOLUMN_TEXT,
-	SCOLUMN_TS,
 	SCOLUMN_TS_,
 	SCOLUMN_DURATION_,
 	SCOLUMN_COMPLETE,
 	SCOLUMN_TASK
-) = range(10)
+) = range(9)
 
 cont = True
 
@@ -62,10 +61,6 @@ class Psyched(gtk.Window) :
 		tabset.append_page(tasks, tlabel)
 		self.add(tabset)
 		
-#		daylist = self.create_list_set()
-#		treeview = self.create_tree(daylist)
-#		self.add_columns(treeview)
-#		schedule.add(treeview)
 		self.add_items_to_vbox(schedule_, self.iterate_get(3, 5, 6))
 
 		self.timer = BackgroundTimer()
@@ -87,6 +82,8 @@ class Psyched(gtk.Window) :
 			day = today + self.day * i
 			r.append(gtk.Label(day.isoformat()))
 			(t, d) = self.getperiod(today + self.day * i)
+
+			# temp
 			daylist = self.create_list_set()
 			treeview = self.create_tree(daylist)
 			self.add_columns(treeview)
@@ -138,7 +135,6 @@ class Psyched(gtk.Window) :
 			model.set(iter,
 				SCOLUMN_ID, id,
 				SCOLUMN_TEXT, text,
-				SCOLUMN_TS, ts,
 				SCOLUMN_TS_, time.strftime('%H:%M', time.localtime(ts)),
 				SCOLUMN_DURATION_, pb.sec2dur(duration),
 				SCOLUMN_COMPLETE, bool(complete),
@@ -163,22 +159,18 @@ class Psyched(gtk.Window) :
 
 	def add_columns(self, treeview):
 		model = treeview.get_model()
-	
-		renderer = gtk.CellRendererText()
-		renderer.connect("edited", self.on_cell_edited, model)
-		renderer.set_data("column", COLUMN_TIME)
-	
-		column = gtk.TreeViewColumn("Time", renderer, text=COLUMN_TIME,
-		editable=COLUMN_EDITABLE)
-		treeview.append_column(column)
+		
+		colset = [(COLUMN_TIME, "Time"), (COLUMN_DESC, "Description")]
 
-		renderer = gtk.CellRendererText()
-		renderer.connect("edited", self.on_cell_edited, model)
-		renderer.set_data("column", COLUMN_DESC)
-	
-		column = gtk.TreeViewColumn("Description", renderer, text=COLUMN_DESC,
-		editable=COLUMN_EDITABLE)
-		treeview.append_column(column)
+		for col in colset :
+			(cid, ctext) = col
+			renderer = gtk.CellRendererText()
+			renderer.connect("edited", self.on_cell_edited, model)
+			renderer.set_data("column", cid)
+
+			column = gtk.TreeViewColumn(ctext, renderer, text=cid, editable=COLUMN_EDITABLE)
+			treeview.append_column(column)
+
 
 	def on_cell_edited(self, cell, path_string, new_text, model) :
 		iter = model.get_iter_from_string(path_string)
