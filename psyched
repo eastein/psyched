@@ -40,9 +40,9 @@ class Psyched(gtk.Window) :
 		tasks_.set_border_width(5)
 
 		schedule = gtk.ScrolledWindow()
-		schedule.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
+		schedule.set_policy(gtk.POLICY_NEVER, gtk.POLICY_ALWAYS)
 		tasks = gtk.ScrolledWindow()
-		tasks.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
+		tasks.set_policy(gtk.POLICY_NEVER, gtk.POLICY_ALWAYS)
 
 		schedule.add_with_viewport(schedule_)
 		tasks.add_with_viewport(tasks_)
