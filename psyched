@@ -29,6 +29,13 @@ import psyched_backend as pb
 	SCOLUMN_TASK,
 	SCOLUMN_EDITABLE
 ) = range(7)
+(
+	TCOLUMN_ID,
+	TCOLUMN_TEXT,
+	TCOLUMN_DUE_,
+	TCOLUMN_COMPLETE,
+	TCOLUMN_EDITABLE
+) = range(5)
 
 cont = True
 
@@ -87,14 +94,8 @@ class Psyched(gtk.Window) :
 
 			dl = self.create_list_sched(self.backend.fetch_schedule(t, d))
 			tv = self.create_tree(dl)
-			self.add_columns(tv, [(SCOLUMN_TS_, "Time")], SCOLUMN_EDITABLE)
+			self.add_columns(tv, [(SCOLUMN_TS_, "Time"), (SCOLUMN_DURATION_, "Length"), (SCOLUMN_TEXT, "Description")], SCOLUMN_EDITABLE)
 			r.append(tv)
-
-			# temp
-			daylist = self.create_list_set()
-			treeview = self.create_tree(daylist)
-			self.add_columns(treeview, [(COLUMN_TIME, "Time"), (COLUMN_DESC, "Description")], COLUMN_EDITABLE)
-#			r.append(treeview)
 		return r
 
 	def getperiod(self, d) :
