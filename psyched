@@ -18,20 +18,24 @@ import psyched_backend as pb
 (
 	COLUMN_TIME,
 	COLUMN_DESC,
-	COLUMN_EDITABLE,
+	COLUMN_EDITABLE
+) = range(3)
+(
 	SCOLUMN_ID,
 	SCOLUMN_TEXT,
 	SCOLUMN_TS_,
 	SCOLUMN_DURATION_,
 	SCOLUMN_COMPLETE,
-	SCOLUMN_TASK
-) = range(9)
+	SCOLUMN_TASK,
+	SCOLUMN_EDITABLE
+) = range(7)
 
 cont = True
 
 class Psyched(gtk.Window) :
 	def __init__(self, parent=None) :
 		self.day = datetime.timedelta(days=1)
+		self.backend = pb.PsychedBackend()
 
 		gtk.Window.__init__(self)
 		self.connect('destroy', self.__die__)
@@ -66,8 +70,6 @@ class Psyched(gtk.Window) :
 		self.timer = BackgroundTimer()
 		self.timer.start()
 
-		self.backend = pb.PsychedBackend()
-
 		self.win = None
 		self.show_all()
 	
@@ -83,11 +85,16 @@ class Psyched(gtk.Window) :
 			r.append(gtk.Label(day.isoformat()))
 			(t, d) = self.getperiod(today + self.day * i)
 
+			dl = self.create_list_sched(self.backend.fetch_schedule(t, d))
+			tv = self.create_tree(dl)
+			self.add_columns(tv, [(SCOLUMN_TS_, "Time")], SCOLUMN_EDITABLE)
+			r.append(tv)
+
 			# temp
 			daylist = self.create_list_set()
 			treeview = self.create_tree(daylist)
-			self.add_columns(treeview, [(COLUMN_TIME, "Time"), (COLUMN_DESC, "Description")])
-			r.append(treeview)
+			self.add_columns(treeview, [(COLUMN_TIME, "Time"), (COLUMN_DESC, "Description")], COLUMN_EDITABLE)
+#			r.append(treeview)
 		return r
 
 	def getperiod(self, d) :
@@ -120,11 +127,11 @@ class Psyched(gtk.Window) :
 		model = gtk.ListStore(
 			gobject.TYPE_INT,	#id
 			gobject.TYPE_STRING,	#text
-			gobject.TYPE_INT,	#ts
 			gobject.TYPE_STRING,	#text version of time
 			gobject.TYPE_STRING,	#text version of duration
 			gobject.TYPE_BOOLEAN,	#complete
-			gobject.TYPE_INT	#task
+			gobject.TYPE_INT,	#task
+			gobject.TYPE_BOOLEAN	#editable
 		)
 
 		model.set_sort_column_id(SCOLUMN_TS_, gtk.SORT_ASCENDING)
@@ -132,17 +139,17 @@ class Psyched(gtk.Window) :
 		iter = model.append()
 		for item in list :
 			(id, text, ts, duration, complete, task) = item
-
 			model.set(iter,
 				SCOLUMN_ID, id,
 				SCOLUMN_TEXT, text,
 				SCOLUMN_TS_, time.strftime('%H:%M', time.localtime(ts)),
 				SCOLUMN_DURATION_, pb.sec2dur(duration),
 				SCOLUMN_COMPLETE, bool(complete),
-				SCOLUMN_TASK, task
+				SCOLUMN_TASK, task,
+				SCOLUMN_EDITABLE, True
 			)
 
-			return model
+		return model
 
 	'''Create List Set
 	'''
@@ -158,7 +165,7 @@ class Psyched(gtk.Window) :
 
 		return model
 
-	def add_columns(self, treeview, colset):
+	def add_columns(self, treeview, colset, col_e):
 		model = treeview.get_model()
 
 		for col in colset :
@@ -167,7 +174,7 @@ class Psyched(gtk.Window) :
 			renderer.connect("edited", self.on_cell_edited, model)
 			renderer.set_data("column", cid)
 
-			column = gtk.TreeViewColumn(ctext, renderer, text=cid, editable=COLUMN_EDITABLE)
+			column = gtk.TreeViewColumn(ctext, renderer, text=cid, editable=col_e)
 			treeview.append_column(column)
 
 
