@@ -72,7 +72,11 @@ class Psyched(gtk.Window) :
 		tabset.append_page(tasks, tlabel)
 		self.add(tabset)
 		
-		self.add_items_to_vbox(schedule_, self.iterate_get(3, 5, 6))
+		scols = [(SCOLUMN_TS_, "Time"), (SCOLUMN_DURATION_, "Length"), (SCOLUMN_TEXT, "Description")]
+		self.add_items_to_vbox(schedule_, self.iterate_get(3, lambda t, d: self.create_list_sched(self.backend.fetch_schedule(t, d)), (scols, SCOLUMN_EDITABLE)))
+
+		tcols = [(TCOLUMN_DUE_, "Time"), (TCOLUMN_TEXT, "Description")]
+		self.add_items_to_vbox(tasks_, self.iterate_get(3, lambda t, d: self.create_list_task(self.backend.fetch_dated_tasks(t, d)), (tcols, TCOLUMN_EDITABLE)))
 
 		self.timer = BackgroundTimer()
 		self.timer.start()
@@ -84,7 +88,8 @@ class Psyched(gtk.Window) :
 		global cont
 		cont = False
 
-	def iterate_get(self, days, pullfunction, treebuild) :
+	def iterate_get(self, days, fetch, colargs) :
+		(l, e) = colargs
 		today = datetime.date.today()
 		r = []
 		for i in range(days) :
@@ -92,9 +97,9 @@ class Psyched(gtk.Window) :
 			r.append(gtk.Label(day.isoformat()))
 			(t, d) = self.getperiod(today + self.day * i)
 
-			dl = self.create_list_sched(self.backend.fetch_schedule(t, d))
+			dl = fetch(t, d)
 			tv = self.create_tree(dl)
-			self.add_columns(tv, [(SCOLUMN_TS_, "Time"), (SCOLUMN_DURATION_, "Length"), (SCOLUMN_TEXT, "Description")], SCOLUMN_EDITABLE)
+			self.add_columns(tv, l, e)
 			r.append(tv)
 		return r
 
@@ -123,6 +128,30 @@ class Psyched(gtk.Window) :
 		treeview.get_selection().set_mode(gtk.SELECTION_SINGLE)
 
 		return treeview
+
+	def create_list_task(self, list) :
+		model = gtk.ListStore(
+			gobject.TYPE_INT,	#id
+			gobject.TYPE_STRING,	#text
+			gobject.TYPE_STRING,	#text version of due
+			gobject.TYPE_BOOLEAN,	#complete
+			gobject.TYPE_BOOLEAN	#editable
+		)
+
+		model.set_sort_column_id(TCOLUMN_DUE_, gtk.SORT_ASCENDING)
+
+		iter = model.append()
+		for item in list :
+			(id, text, due, complete) = item
+			model.set(iter,
+				TCOLUMN_ID, id,
+				TCOLUMN_TEXT, text,
+				TCOLUMN_DUE_, time.strftime('%H:%M', time.localtime(due)),
+				TCOLUMN_COMPLETE, complete,
+				TCOLUMN_EDITABLE, True
+			)
+
+		return model
 
 	def create_list_sched(self, list) :
 		model = gtk.ListStore(
