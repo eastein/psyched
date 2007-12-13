@@ -72,7 +72,7 @@ class Psyched(gtk.Window) :
 		tabset.append_page(tasks, tlabel)
 		self.add(tabset)
 		
-		scols = [(SCOLUMN_TS_, "Time"), (SCOLUMN_DURATION_, "Length"), (SCOLUMN_TEXT, "Description")]
+		scols = [(SCOLUMN_TS_, "Time"), (SCOLUMN_DURATION_, "Length"), (SCOLUMN_TEXT, "Description"), (SCOLUMN_COMPLETE, "Attended")]
 		self.add_items_to_vbox(schedule_, self.iterate_get(3, lambda t, d: self.create_list_sched(self.backend.fetch_schedule(t, d)), (scols, SCOLUMN_EDITABLE)))
 
 		tcols = [(TCOLUMN_DUE_, "Time"), (TCOLUMN_TEXT, "Description")]
@@ -111,7 +111,7 @@ class Psyched(gtk.Window) :
 	def dialog(self, s) :
 		dialog = gtk.MessageDialog(self,
 			gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-			gtk.MESSAGE_INFO, gtk.BUTTONS_OK, s)
+			gtk.MESSAGE_ERROR, gtk.BUTTONS_OK, s)
 		dialog.run()
 		dialog.destroy()
 
@@ -200,13 +200,30 @@ class Psyched(gtk.Window) :
 
 		for col in colset :
 			(cid, ctext) = col
-			renderer = gtk.CellRendererText()
-			renderer.connect("edited", self.on_cell_edited, model)
+			renderer = None
+			isbool = model.get_column_type(cid) == gobject.TYPE_BOOLEAN
+			if isbool :
+				renderer = gtk.CellRendererToggle()
+				renderer.connect("toggled", self.on_item_toggled, model)
+			else :
+				renderer = gtk.CellRendererText()
+				renderer.connect("edited", self.on_cell_edited, model)
+
 			renderer.set_data("column", cid)
 
-			column = gtk.TreeViewColumn(ctext, renderer, text=cid, editable=col_e)
+			if isbool :
+				column = gtk.TreeViewColumn(ctext, renderer, active=cid, activatable=col_e)
+			else :
+				column = gtk.TreeViewColumn(ctext, renderer, text=cid, editable=col_e)
 			treeview.append_column(column)
+	def on_item_toggled(self, cell, path_string, model) :
+		column = cell.get_data('column')
+		iter = model.get_iter_from_string(path_string)
+		toggle_item = model.get_value(iter, column)
 
+		toggle_item = not toggle_item
+
+		model.set(iter, column, toggle_item)
 
 	def on_cell_edited(self, cell, path_string, new_text, model) :
 		iter = model.get_iter_from_string(path_string)
