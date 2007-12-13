@@ -111,6 +111,15 @@ class Psyched(gtk.Window) :
 		f2 = int(time.mktime((d + self.day).timetuple()))
 		return (f1, f2 - f1)
 
+	def input_dialog(self, title) :
+		d = gtk.Dialog(title, self, 0,
+			(gtk.STOCK_OK, gtk.RESPONSE_OK,
+			gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
+
+		d.show_all()
+		response = d.run()
+		d.destroy()
+
 	def dialog(self, s) :
 		dialog = gtk.MessageDialog(self,
 			gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
