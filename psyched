@@ -94,7 +94,10 @@ class Psyched(gtk.Window) :
 		r = []
 		for i in range(days) :
 			day = today + self.day * i
-			r.append(gtk.Label(day.isoformat()))
+			lset = gtk.HBox()
+			lset.pack_start(gtk.Label(day.isoformat()))
+			lset.pack_start(gtk.Button(stock=gtk.STOCK_ADD))
+			r.append(lset)
 			(t, d) = self.getperiod(today + self.day * i)
 
 			dl = fetch(t, d)
@@ -140,8 +143,8 @@ class Psyched(gtk.Window) :
 
 		model.set_sort_column_id(TCOLUMN_DUE_, gtk.SORT_ASCENDING)
 
-		iter = model.append()
 		for item in list :
+			iter = model.append()
 			(id, text, due, complete) = item
 			model.set(iter,
 				TCOLUMN_ID, id,
@@ -166,8 +169,8 @@ class Psyched(gtk.Window) :
 
 		model.set_sort_column_id(SCOLUMN_TS_, gtk.SORT_ASCENDING)
 
-		iter = model.append()
 		for item in list :
+			iter = model.append()
 			(id, text, ts, duration, complete, task) = item
 			model.set(iter,
 				SCOLUMN_ID, id,
