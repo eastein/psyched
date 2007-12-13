@@ -209,10 +209,14 @@ class Psyched(gtk.Window) :
 				renderer = gtk.CellRendererText()
 				renderer.connect("edited", self.on_cell_edited, model)
 
+			renderer.set_property("xalign", 0.0)
 			renderer.set_data("column", cid)
 
 			if isbool :
 				column = gtk.TreeViewColumn(ctext, renderer, active=cid, activatable=col_e)
+				column.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
+				column.set_fixed_width(30)
+				column.set_clickable(True)
 			else :
 				column = gtk.TreeViewColumn(ctext, renderer, text=cid, editable=col_e)
 			treeview.append_column(column)
