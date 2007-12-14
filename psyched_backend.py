@@ -22,6 +22,10 @@ uses localtime because mktime requires local time
 def utime() :
 	return time.mktime(time.localtime())
 
+def fupack(t) :
+	(a, ) = t
+	return a
+
 def sec2dur(s) :
 	mins = s / 60
 	m = str(mins % 60)
@@ -94,6 +98,13 @@ class PsychedBackend :
 
 	def set_sched_task(self, id, task) :
 		self.cursor.execute('update sched set task=? where id=?', (task, id))
+
+#--------------------- GETTERS
+	def get_sched_ts(self, id) :
+		return fupack(self.cursor.execute('select ts from sched where id=?', (id, )).fetchall()[0])
+
+	def get_task_due(self, id) :
+		return fupack(self.cursor.execute('select due from task where id=?', (id, )).fetchall()[0])
 
 #--------------------- ADDERS
 	def insert_task(self, text, due) :

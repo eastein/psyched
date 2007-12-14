@@ -380,11 +380,10 @@ class Psyched(gtk.Window) :
 
 		toggle_item = not toggle_item
 
+		id = model.get_value(iter, 0)
 		if column == SCOLUMN_COMPLETE :
-			id = model.get_value(iter, SCOLUMN_ID)
 			self.backend.set_sched_complete(id, toggle_item)
 		elif column == TCOLUMN_COMPLETE :
-			id = model.get_value(iter, TCOLUMN_ID)
 			self.backend.set_task_complete(id, toggle_item)
 		else :
 			raise RuntimeError, 'Unknown toggle column: ' + str(column)
@@ -398,13 +397,37 @@ class Psyched(gtk.Window) :
 		column = cell.get_data("column")
 
 		update = None
-		if column == COLUMN_DESC :
+		id = model.get_value(iter, 0)
+		if column == SCOLUMN_TEXT :
 			update = new_text
-			# call into storage backend here
-		elif column == COLUMN_TIME :
+			self.backend.set_sched_text(id, new_text)
+		elif column == TCOLUMN_TEXT :
+			update = new_text
+			self.backend.set_task_text(id, new_text)
+		elif column == TCOLUMN_DUE_ :
 			if (pv.check_time(new_text)) :
 				update = new_text
-				# call into storage backend here
+
+				ts = self.backend.get_task_due(id)
+
+				(y, m, d, h, mi, s, a, b, t) = time.localtime(ts)
+				(hn, mn) = self.s2loi(new_text)
+				tsn = time.mktime((y, m, d, hn, mn, 0, a, b, -1))
+
+				self.backend.set_task_due(id, tsn)
+		elif column == SCOLUMN_TS_ :
+			if (pv.check_time(new_text)) :
+				update = new_text
+
+				ts = self.backend.get_sched_ts(id)
+
+				(y, m, d, h, mi, s, a, b, t) = time.localtime(ts)
+				(hn, mn) = self.s2loi(new_text)
+				tsn = time.mktime((y, m, d, hn, mn, 0, a, b, -1))
+
+				self.backend.set_sched_ts(id, tsn)
+		self.backend.action_complete()
+				
 		if update == None :
 			self.dialog('Incorrect formatting.')
 		else :
