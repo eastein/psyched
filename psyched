@@ -70,12 +70,8 @@ class Psyched(gtk.Window) :
 		tabset.append_page(schedule, slabel)
 		tabset.append_page(tasks, tlabel)
 		self.add(tabset)
-		
-		scols = [(SCOLUMN_COMPLETE, "Attended"), (SCOLUMN_TS_, "Time"), (SCOLUMN_DURATION_, "Length"), (SCOLUMN_TEXT, "Description")]
-		self.add_items_to_vbox(schedule_, self.iterate_get(3, lambda t, d: self.create_list_sched(self.backend.fetch_schedule(t, d)), (scols, SCOLUMN_EDITABLE)))
-
-		tcols = [(TCOLUMN_COMPLETE, "Done"), (TCOLUMN_DUE_, "Time"), (TCOLUMN_TEXT, "Description")]
-		self.add_items_to_vbox(tasks_, self.iterate_get(3, lambda t, d: self.create_list_task(self.backend.fetch_dated_tasks(t, d)), (tcols, TCOLUMN_EDITABLE)))
+	
+		self.populate_tabs(schedule_, tasks_, 3)
 
 		self.timer = BackgroundTimer()
 		self.timer.start()
@@ -88,6 +84,13 @@ class Psyched(gtk.Window) :
 	def __die__(self, parent=None) :
 		global cont
 		cont = False
+
+	def populate_tabs(self, sched, tasks, days) :
+		scols = [(SCOLUMN_COMPLETE, "Attended"), (SCOLUMN_TS_, "Time"), (SCOLUMN_DURATION_, "Length"), (SCOLUMN_TEXT, "Description")]
+		tcols = [(TCOLUMN_COMPLETE, "Done"), (TCOLUMN_DUE_, "Time"), (TCOLUMN_TEXT, "Description")]
+
+		self.add_items_to_vbox(sched, self.iterate_get(days, lambda t, d: self.create_list_sched(self.backend.fetch_schedule(t, d)), (scols, SCOLUMN_EDITABLE)))
+		self.add_items_to_vbox(tasks, self.iterate_get(days, lambda t, d: self.create_list_task(self.backend.fetch_dated_tasks(t, d)), (tcols, TCOLUMN_EDITABLE)))
 
 	def iterate_get(self, days, fetch, colargs) :
 		(l, e) = colargs
