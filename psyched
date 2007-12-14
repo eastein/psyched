@@ -87,6 +87,7 @@ class Psyched(gtk.Window) :
 
 	def populate_tabs(self, sched, tasks, days) :
 		self.stores = {'sched' : {}, 'task' : {}}
+
 		scols = [(SCOLUMN_COMPLETE, "Attended"), (SCOLUMN_TS_, "Time"), (SCOLUMN_DURATION_, "Length"), (SCOLUMN_TEXT, "Description")]
 		tcols = [(TCOLUMN_COMPLETE, "Done"), (TCOLUMN_DUE_, "Time"), (TCOLUMN_TEXT, "Description")]
 
@@ -188,6 +189,7 @@ class Psyched(gtk.Window) :
 		dialog.run()
 		dialog.destroy()
 
+	# get midnight on the day the timestamp is in
 	def midnight(self, ts) :
 		(y, m, d, h, mi, s, a, b, c) = time.localtime(ts)
 		return int(time.mktime((y, m, d, 0, 0, 0, a, b, -1)))
@@ -210,6 +212,7 @@ class Psyched(gtk.Window) :
 
 		return treeview
 
+	# colon delimited string to list of integers
 	def s2loi(self, s) :
 		return map(lambda s: int(s), s.split(':'))
 
@@ -220,25 +223,6 @@ class Psyched(gtk.Window) :
 			r += c * i
 			c /= 60
 		return r
-
-	def create_sched(self, date=None) :
-		v = self.input_dialog("New Appointment",
-			[
-			(gtk.Calendar, "Date", None),
-			(gtk.Entry, "Time", pv.check_time),
-			(gtk.Entry, "Duration", pv.check_interval),
-			(gtk.Entry, "Description", None)])
-		if v != None :
-			(y, mo, d) = v['Date']
-			(h, mi) = self.s2loi(v['Time'])
-			ts = time.mktime((y, mo + 1, d, h, mi, 0, 0, 0, -1))
-
-			duration = self.dur2sec(self.s2loi(v['Duration']))
-			text = v['Description']
-
-			ns = self.backend.insert_sched(text, ts, duration, 0, 0)
-			self.backend.action_complete()
-			self.opt_add_row('sched', self.midnight(ts), self.sched_db2li(self.backend.fetch_sched(ns)), self.sched_model_append)
 
 	def task_db2li(self, t) :
 		(id, text, due, complete) = t
@@ -276,6 +260,36 @@ class Psyched(gtk.Window) :
 			self.task_model_append(model, self.task_db2li(item))
 
 		return model
+
+	def create_sched(self, date=None) :
+		v = self.input_dialog("New Appointment",
+			[
+			(gtk.Calendar, "Date", None),
+			(gtk.Entry, "Time", pv.check_time),
+			(gtk.Entry, "Duration", pv.check_interval),
+			(gtk.Entry, "Description", None)])
+
+		if v != None :
+			# get date and time
+			(y, mo, d) = v['Date']
+			(h, mi) = self.s2loi(v['Time'])
+
+			# create unix timestamp
+			ts = time.mktime((y, mo + 1, d, h, mi, 0, 0, 0, -1))
+
+			# convert duration to seconds
+			duration = self.dur2sec(self.s2loi(v['Duration']))
+
+			# fetch description
+			text = v['Description']
+
+			# insert schedule item into database
+			ns = self.backend.insert_sched(text, ts, duration, 0, 0)
+			# commit
+			self.backend.action_complete()
+
+			# fetch item and add it to the GUI if in range
+			self.opt_add_row('sched', self.midnight(ts), self.sched_db2li(self.backend.fetch_sched(ns)), self.sched_model_append)
 
 	def sched_db2li(self, t) :
 		(id, text, ts, duration, complete, task) = t
