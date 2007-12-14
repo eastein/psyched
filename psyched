@@ -80,7 +80,6 @@ class Psyched(gtk.Window) :
 		self.show_all()
 
 		self.create_sched()
-#		print self.input_dialog("Test", [(gtk.Calendar, "Date", None), (gtk.Entry, "Some Text", pv.check_time)])
 
 	def __die__(self, parent=None) :
 		global cont
@@ -189,12 +188,20 @@ class Psyched(gtk.Window) :
 		dialog.run()
 		dialog.destroy()
 
+	def midnight(self, ts) :
+		(y, m, d, h, mi, s, a, b, c) = time.localtime(ts)
+		return int(time.mktime((y, m, d, 0, 0, 0, a, b, -1)))
+
 	def add_items_to_vbox(self, vb, list) :
 		for item in list :
 			vb.pack_start(item, expand=False)
 
 	def clear_vbox(self, vb) :
 		vb.forall(vb.remove)
+
+	def opt_add_row(self, kind, ts, item, function) :
+		if self.stores[kind].has_key(ts) :
+			function(self.stores[kind][ts], item)
 
 	def create_tree(self, list) :
 		treeview = gtk.TreeView(list)
@@ -231,10 +238,7 @@ class Psyched(gtk.Window) :
 
 			ns = self.backend.insert_sched(text, ts, duration, 0, 0)
 			self.backend.action_complete()
-			print ns
-			print self.backend.fetch_sched(ns)
-			print self.stores
-			print (time.strftime('%x %r', time.localtime(ts)), duration, text)
+			self.opt_add_row('sched', self.midnight(ts), self.sched_db2li(self.backend.fetch_sched(ns)), self.sched_model_append)
 
 	def task_db2li(self, t) :
 		(id, text, due, complete) = t
