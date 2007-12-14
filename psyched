@@ -544,7 +544,7 @@ class BackgroundTimer(threading.Thread) :
 			self.min = _min
 			self.sec = _sec
 
-			time.sleep(0.5)
+			time.sleep(0.25)
 
 	def add_callback(self, period, callback) :
 		self.callbacks[period].append(callback)
