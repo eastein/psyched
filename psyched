@@ -8,7 +8,6 @@ License: GPL2/GPL3, at your option.
 
 import gtk
 import gobject
-import random
 import time
 import datetime
 import threading
@@ -241,20 +240,6 @@ class Psyched(gtk.Window) :
 
 		return model
 
-	'''Create List Set
-	'''
-	def create_list_set(self) :
-		model = gtk.ListStore(
-			gobject.TYPE_STRING,
-			gobject.TYPE_STRING,
-			gobject.TYPE_BOOLEAN
-		)
-
-		iter = model.append()
-		model.set(iter, COLUMN_TIME, str(random.randint(0,23)) + ':' + str(random.randint(10,59)), COLUMN_DESC, "stuff",  COLUMN_EDITABLE, True)
-
-		return model
-
 	def add_columns(self, treeview, colset, col_e):
 		model = treeview.get_model()
 
@@ -277,6 +262,7 @@ class Psyched(gtk.Window) :
 			else :
 				column = gtk.TreeViewColumn(ctext, renderer, text=cid, editable=col_e)
 			treeview.append_column(column)
+
 	def on_item_toggled(self, cell, path_string, model) :
 		column = cell.get_data('column')
 		iter = model.get_iter_from_string(path_string)
