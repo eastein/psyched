@@ -15,11 +15,6 @@ import psyched_validate as pv
 import psyched_backend as pb
 
 (
-	COLUMN_TIME,
-	COLUMN_DESC,
-	COLUMN_EDITABLE
-) = range(3)
-(
 	SCOLUMN_ID,
 	SCOLUMN_TEXT,
 	SCOLUMN_TS_,
@@ -231,6 +226,38 @@ class Psyched(gtk.Window) :
 			c /= 60
 		return r
 
+	def create_task(self, date=None) :
+		calmods = []
+		if date != None :
+			(y, m, d) = date
+			calmods.append(lambda c: c.select_month(m - 1, y))
+			calmods.append(lambda c: c.select_day(d))
+
+		v = self.input_dialog("New Task",
+			[
+			(gtk.Calendar, "Due Date", None, calmods),
+			(gtk.Entry, "Due Time", pv.check_time, []),
+			(gtk.Entry, "Description", None, [])])
+
+		if v != None :
+			# get date and time
+			(y, mo, d) = v['Due Date']
+			(h, mi) = self.s2loi(v['Due Time'])
+			
+			# create unix timestamp
+			ts = time.mktime((y, mo + 1, d, h, mi, 0, 0, 0, -1))
+
+			# fetch description
+			text = v['Description']
+
+			# insert task into database
+			ns = self.backend.insert_task(text, ts)
+			# commit
+			self.backend.action_complete()
+
+			# fetch item and add it to the GUI if in range
+			self.opt_add_row('task', self.midnight(ts), self.task_db2li(self.backend.fetch_task(ns)), self.task_model_append)
+
 	def task_db2li(self, t) :
 		(id, text, due, complete) = t
 
@@ -267,38 +294,6 @@ class Psyched(gtk.Window) :
 			self.task_model_append(model, self.task_db2li(item))
 
 		return model
-
-	def create_task(self, date=None) :
-		calmods = []
-		if date != None :
-			(y, m, d) = date
-			calmods.append(lambda c: c.select_month(m - 1, y))
-			calmods.append(lambda c: c.select_day(d))
-
-		v = self.input_dialog("New Task",
-			[
-			(gtk.Calendar, "Due Date", None, calmods),
-			(gtk.Entry, "Due Time", pv.check_time, []),
-			(gtk.Entry, "Description", None, [])])
-
-		if v != None :
-			# get date and time
-			(y, mo, d) = v['Due Date']
-			(h, mi) = self.s2loi(v['Due Time'])
-			
-			# create unix timestamp
-			ts = time.mktime((y, mo + 1, d, h, mi, 0, 0, 0, -1))
-
-			# fetch description
-			text = v['Description']
-
-			# insert task into database
-			ns = self.backend.insert_task(text, ts)
-			# commit
-			self.backend.action_complete()
-
-			# fetch item and add it to the GUI if in range
-			self.opt_add_row('task', self.midnight(ts), self.task_db2li(self.backend.fetch_task(ns)), self.task_model_append)
 
 	def create_sched(self, date=None) :
 		calmods = []
