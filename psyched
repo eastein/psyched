@@ -87,11 +87,12 @@ class Psyched(gtk.Window) :
 		cont = False
 
 	def populate_tabs(self, sched, tasks, days) :
+		self.stores = {'sched' : {}, 'task' : {}}
 		scols = [(SCOLUMN_COMPLETE, "Attended"), (SCOLUMN_TS_, "Time"), (SCOLUMN_DURATION_, "Length"), (SCOLUMN_TEXT, "Description")]
 		tcols = [(TCOLUMN_COMPLETE, "Done"), (TCOLUMN_DUE_, "Time"), (TCOLUMN_TEXT, "Description")]
 
-		self.add_items_to_vbox(sched, self.iterate_get(days, lambda t, d: self.create_list_sched(self.backend.fetch_schedule(t, d)), (scols, SCOLUMN_EDITABLE)))
-		self.add_items_to_vbox(tasks, self.iterate_get(days, lambda t, d: self.create_list_task(self.backend.fetch_dated_tasks(t, d)), (tcols, TCOLUMN_EDITABLE)))
+		self.add_items_to_vbox(sched, self.iterate_get(days, lambda t, d: self.create_list_sched(self.backend.fetch_schedule(t, d), t), (scols, SCOLUMN_EDITABLE)))
+		self.add_items_to_vbox(tasks, self.iterate_get(days, lambda t, d: self.create_list_task(self.backend.fetch_dated_tasks(t, d), t), (tcols, TCOLUMN_EDITABLE)))
 
 	def iterate_get(self, days, fetch, colargs) :
 		(l, e) = colargs
@@ -205,6 +206,14 @@ class Psyched(gtk.Window) :
 	def s2loi(self, s) :
 		return map(lambda s: int(s), s.split(':'))
 
+	def dur2sec(self, list) :
+		c = pow(60, len(list))
+		r = 0
+		for i in list :
+			r += c * i
+			c /= 60
+		return r
+
 	def create_sched(self, date=None) :
 		v = self.input_dialog("New Appointment",
 			[
@@ -213,12 +222,19 @@ class Psyched(gtk.Window) :
 			(gtk.Entry, "Duration", pv.check_interval),
 			(gtk.Entry, "Description", None)])
 		if v != None :
-			date = v['Date']
-			time = self.s2loi(v['Time'])
-			duration = self.s2loi(v['Duration'])
+			(y, mo, d) = v['Date']
+			(h, mi) = self.s2loi(v['Time'])
+			ts = time.mktime((y, mo + 1, d, h, mi, 0, 0, 0, -1))
+
+			duration = self.dur2sec(self.s2loi(v['Duration']))
 			text = v['Description']
 
-			print (date, time, duration, text)
+			ns = self.backend.insert_sched(text, ts, duration, 0, 0)
+			self.backend.action_complete()
+			print ns
+			print self.backend.fetch_sched(ns)
+			print self.stores
+			print (time.strftime('%x %r', time.localtime(ts)), duration, text)
 
 	def task_db2li(self, t) :
 		(id, text, due, complete) = t
@@ -240,7 +256,7 @@ class Psyched(gtk.Window) :
 			TCOLUMN_EDITABLE, editable
 		)
 
-	def create_list_task(self, list) :
+	def create_list_task(self, list, ts) :
 		model = gtk.ListStore(
 			gobject.TYPE_INT,	#id
 			gobject.TYPE_STRING,	#text
@@ -250,6 +266,7 @@ class Psyched(gtk.Window) :
 		)
 
 		model.set_sort_column_id(TCOLUMN_DUE_, gtk.SORT_ASCENDING)
+		self.stores['task'][ts] = model
 
 		for item in list :
 			self.task_model_append(model, self.task_db2li(item))
@@ -279,7 +296,7 @@ class Psyched(gtk.Window) :
 			SCOLUMN_EDITABLE, editable
 		)
 
-	def create_list_sched(self, list) :
+	def create_list_sched(self, list, ts) :
 		model = gtk.ListStore(
 			gobject.TYPE_INT,	#id
 			gobject.TYPE_STRING,	#text
@@ -291,6 +308,7 @@ class Psyched(gtk.Window) :
 		)
 
 		model.set_sort_column_id(SCOLUMN_TS_, gtk.SORT_ASCENDING)
+		self.stores['sched'][ts] = model
 
 		for item in list :
 			self.sched_model_append(model, self.sched_db2li(item))
