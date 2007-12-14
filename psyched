@@ -201,6 +201,26 @@ class Psyched(gtk.Window) :
 
 		return treeview
 
+	def task_db2li(self, t) :
+		(id, text, due, complete) = t
+
+		due_ = time.strftime('%H:%M', time.localtime(due))
+		complete = bool(complete)
+		editable = True
+
+		return (id, text, due_, complete, editable)
+
+	def task_model_append(self, model, item) :
+		iter = model.append()
+		(id, text, due_, complete, editable) = item
+		model.set(iter,
+			TCOLUMN_ID, id,
+			TCOLUMN_TEXT, text,
+			TCOLUMN_DUE_, due_,
+			TCOLUMN_COMPLETE, complete,
+			TCOLUMN_EDITABLE, editable
+		)
+
 	def create_list_task(self, list) :
 		model = gtk.ListStore(
 			gobject.TYPE_INT,	#id
@@ -213,15 +233,7 @@ class Psyched(gtk.Window) :
 		model.set_sort_column_id(TCOLUMN_DUE_, gtk.SORT_ASCENDING)
 
 		for item in list :
-			iter = model.append()
-			(id, text, due, complete) = item
-			model.set(iter,
-				TCOLUMN_ID, id,
-				TCOLUMN_TEXT, text,
-				TCOLUMN_DUE_, time.strftime('%H:%M', time.localtime(due)),
-				TCOLUMN_COMPLETE, complete,
-				TCOLUMN_EDITABLE, True
-			)
+			self.task_model_append(model, self.task_db2li(item))
 
 		return model
 
@@ -262,17 +274,7 @@ class Psyched(gtk.Window) :
 		model.set_sort_column_id(SCOLUMN_TS_, gtk.SORT_ASCENDING)
 
 		for item in list :
-			iter = model.append()
-			(id, text, ts_, duration_, complete, task, editable) = self.sched_db2li(item)
-			model.set(iter,
-				SCOLUMN_ID, id,
-				SCOLUMN_TEXT, text,
-				SCOLUMN_TS_, ts_,
-				SCOLUMN_DURATION_, duration_,
-				SCOLUMN_COMPLETE, complete,
-				SCOLUMN_TASK, task,
-				SCOLUMN_EDITABLE, editable
-			)
+			self.sched_model_append(model, self.sched_db2li(item))
 
 		return model
 
