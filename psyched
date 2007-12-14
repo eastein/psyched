@@ -380,6 +380,16 @@ class Psyched(gtk.Window) :
 
 		toggle_item = not toggle_item
 
+		if column == SCOLUMN_COMPLETE :
+			id = model.get_value(iter, SCOLUMN_ID)
+			self.backend.set_sched_complete(id, toggle_item)
+		elif column == TCOLUMN_COMPLETE :
+			id = model.get_value(iter, TCOLUMN_ID)
+			self.backend.set_task_complete(id, toggle_item)
+		else :
+			raise RuntimeError, 'Unknown toggle column: ' + str(column)
+
+		self.backend.action_complete()
 		model.set(iter, column, toggle_item)
 
 	def on_cell_edited(self, cell, path_string, new_text, model) :

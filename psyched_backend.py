@@ -69,6 +69,32 @@ class PsychedBackend :
 	def action_complete(self) :
 		self.conn.commit()
 
+
+#--------------------- SETTERS
+	def set_task_text(self, id, text) :
+		self.cursor.execute('update task set text=? where id=?', (text, id))
+
+	def set_task_due(self, id, due) :
+		self.cursor.execute('update task set due=? where id=?', (due, id))
+	
+	def set_task_complete(self, id, complete) :
+		self.cursor.execute('update task set complete=? where id=?', (complete, id))
+
+	def set_sched_text(self, id, text) :
+		self.cursor.execute('update sched set text=? where id=?', (text, id))
+	
+	def set_sched_ts(self, id, ts) :
+		self.cursor.execute('update sched set ts=? where id=?', (ts, id))
+	
+	def set_sched_duration(self, id, duration) :
+		self.cursor.execute('update sched set duration=? where id=?', (duration, id))
+
+	def set_sched_complete(self, id, complete) :
+		self.cursor.execute('update sched set complete=? where id=?', (complete, id))
+
+	def set_sched_task(self, id, task) :
+		self.cursor.execute('update sched set task=? where id=?', (task, id))
+
 #--------------------- ADDERS
 	def insert_task(self, text, due) :
 		self.cursor.execute('insert into task (text, due, complete) values (?, ?, ?)', (text, due, 0))
