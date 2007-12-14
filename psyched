@@ -76,6 +76,18 @@ class Psyched(gtk.Window) :
 		self.win = None
 		self.show_all()
 
+		self.shown = True
+		self.icon = gtk.status_icon_new_from_stock(gtk.STOCK_FILE)
+		self.icon.connect('activate', self.icon_click)
+
+	def icon_click(self, i) :
+		self.shown = not self.shown
+		if self.shown :
+			self.show_all()
+		else :
+			self.hide()
+			gtk.gdk.flush()
+
 	def __die__(self, parent=None) :
 		global cont
 		cont = False
