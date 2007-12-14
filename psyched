@@ -47,7 +47,7 @@ class Psyched(gtk.Window) :
 		self.connect('destroy', self.__die__)
 
 		self.set_title("Psyched")
-		self.set_default_size(450,600)
+		self.set_default_size(520,600)
 		self.set_border_width(0)
 
 		schedule_ = gtk.VBox(homogeneous=False, spacing=4)
@@ -102,7 +102,9 @@ class Psyched(gtk.Window) :
 			day = today + self.day * i
 			lset = gtk.HBox()
 			lset.pack_start(gtk.Label(day.isoformat()))
-			lset.pack_start(gtk.Button(stock=gtk.STOCK_ADD))
+			abutton = gtk.Button(stock=gtk.STOCK_ADD)
+#			abutton.connect("clicked", )
+			lset.pack_start(abutton)
 			r.append(lset)
 			(t, d) = self.getperiod(today + self.day * i)
 
