@@ -93,10 +93,10 @@ class Psyched(gtk.Window) :
 
 		self.clear_vbox(sched)
 		self.clear_vbox(tasks)
-		self.add_items_to_vbox(sched, self.iterate_get(self.range, lambda t, d: self.create_list_sched(self.backend.fetch_schedule(t, d), t), (scols, SCOLUMN_EDITABLE), self.create_sched))
-		self.add_items_to_vbox(tasks, self.iterate_get(self.range, lambda t, d: self.create_list_task(self.backend.fetch_dated_tasks(t, d), t), (tcols, TCOLUMN_EDITABLE), None))
+		self.add_items_to_vbox(sched, self.iterate_get(self.range, lambda t, d: self.create_list_sched(self.backend.fetch_schedule(t, d), t), (scols, SCOLUMN_EDITABLE), self.create_sched, self.on_s_toggled, self.on_s_edited))
+		self.add_items_to_vbox(tasks, self.iterate_get(self.range, lambda t, d: self.create_list_task(self.backend.fetch_dated_tasks(t, d), t), (tcols, TCOLUMN_EDITABLE), None, self.on_t_toggled, self.on_t_edited))
 
-	def iterate_get(self, days, fetch, colargs, create) :
+	def iterate_get(self, days, fetch, colargs, create, toggle, edit) :
 		(l, e) = colargs
 		today = datetime.date.today()
 		r = []
@@ -113,7 +113,7 @@ class Psyched(gtk.Window) :
 
 			dl = fetch(t, d)
 			tv = self.create_tree(dl)
-			self.add_columns(tv, l, e)
+			self.add_columns(tv, l, e, toggle, edit)
 			r.append(tv)
 		return r
 
@@ -346,7 +346,7 @@ class Psyched(gtk.Window) :
 
 		return model
 
-	def add_columns(self, treeview, colset, col_e):
+	def add_columns(self, treeview, colset, col_e, toggle, edit):
 		model = treeview.get_model()
 
 		for col in colset :
@@ -356,11 +356,11 @@ class Psyched(gtk.Window) :
 			if isbool :
 				# create a toggle for boolean types
 				renderer = gtk.CellRendererToggle()
-				renderer.connect("toggled", self.on_item_toggled, model)
+				renderer.connect("toggled", toggle, model)
 			else :
 				# otherwise input is text, create text entry
 				renderer = gtk.CellRendererText()
-				renderer.connect("edited", self.on_cell_edited, model)
+				renderer.connect("edited", edit, model)
 
 			# align elements to the left
 			renderer.set_property("xalign", 0.0)
@@ -373,7 +373,7 @@ class Psyched(gtk.Window) :
 				column = gtk.TreeViewColumn(ctext, renderer, text=cid, editable=col_e)
 			treeview.append_column(column)
 
-	def on_item_toggled(self, cell, path_string, model) :
+	def on_s_toggled(self, cell, path_string, model) :
 		column = cell.get_data('column')
 		iter = model.get_iter_from_string(path_string)
 		toggle_item = model.get_value(iter, column)
@@ -383,7 +383,21 @@ class Psyched(gtk.Window) :
 		id = model.get_value(iter, 0)
 		if column == SCOLUMN_COMPLETE :
 			self.backend.set_sched_complete(id, toggle_item)
-		elif column == TCOLUMN_COMPLETE :
+		else :
+			raise RuntimeError, 'Unknown toggle column: ' + str(column)
+
+		self.backend.action_complete()
+		model.set(iter, column, toggle_item)
+
+	def on_t_toggled(self, cell, path_string, model) :
+		column = cell.get_data('column')
+		iter = model.get_iter_from_string(path_string)
+		toggle_item = model.get_value(iter, column)
+
+		toggle_item = not toggle_item
+
+		id = model.get_value(iter, 0)
+		if column == TCOLUMN_COMPLETE :
 			self.backend.set_task_complete(id, toggle_item)
 		else :
 			raise RuntimeError, 'Unknown toggle column: ' + str(column)
@@ -391,7 +405,7 @@ class Psyched(gtk.Window) :
 		self.backend.action_complete()
 		model.set(iter, column, toggle_item)
 
-	def on_cell_edited(self, cell, path_string, new_text, model) :
+	def on_s_edited(self, cell, path_string, new_text, model) :
 		iter = model.get_iter_from_string(path_string)
 		path = model.get_path(iter)[0]
 		column = cell.get_data("column")
@@ -401,7 +415,40 @@ class Psyched(gtk.Window) :
 		if column == SCOLUMN_TEXT :
 			update = new_text
 			self.backend.set_sched_text(id, new_text)
-		elif column == TCOLUMN_TEXT :
+		elif column == SCOLUMN_TS_ :
+			if (pv.check_time(new_text)) :
+				update = new_text
+
+				ts = self.backend.get_sched_ts(id)
+
+				(y, m, d, h, mi, s, a, b, t) = time.localtime(ts)
+				(hn, mn) = self.s2loi(new_text)
+				tsn = time.mktime((y, m, d, hn, mn, 0, a, b, -1))
+
+				self.backend.set_sched_ts(id, tsn)
+		elif column == SCOLUMN_DURATION_ :
+			print 'cak'
+			if (pv.check_interval(new_text)) :
+				update = new_text
+
+				d = self.dur2sec(self.s2loi(new_text))
+				self.backend.set_sched_duration(id, d)
+
+		self.backend.action_complete()
+				
+		if update == None :
+			self.dialog('Incorrect formatting.')
+		else :
+			model.set(iter, column, update)
+
+	def on_t_edited(self, cell, path_string, new_text, model) :
+		iter = model.get_iter_from_string(path_string)
+		path = model.get_path(iter)[0]
+		column = cell.get_data("column")
+
+		update = None
+		id = model.get_value(iter, 0)
+		if column == TCOLUMN_TEXT :
 			update = new_text
 			self.backend.set_task_text(id, new_text)
 		elif column == TCOLUMN_DUE_ :
@@ -415,17 +462,7 @@ class Psyched(gtk.Window) :
 				tsn = time.mktime((y, m, d, hn, mn, 0, a, b, -1))
 
 				self.backend.set_task_due(id, tsn)
-		elif column == SCOLUMN_TS_ :
-			if (pv.check_time(new_text)) :
-				update = new_text
 
-				ts = self.backend.get_sched_ts(id)
-
-				(y, m, d, h, mi, s, a, b, t) = time.localtime(ts)
-				(hn, mn) = self.s2loi(new_text)
-				tsn = time.mktime((y, m, d, hn, mn, 0, a, b, -1))
-
-				self.backend.set_sched_ts(id, tsn)
 		self.backend.action_complete()
 				
 		if update == None :
