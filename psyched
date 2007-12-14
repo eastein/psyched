@@ -123,16 +123,19 @@ class Psyched(gtk.Window) :
 			(gtk.STOCK_OK, gtk.RESPONSE_OK,
 			gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
 
+		# create table for storing fields
 		table = gtk.Table(len(fields), 2)
 		table.set_row_spacings(4)
 		table.set_col_spacings(4)
 
+		# create status label
 		d.vbox.add(table)
 		status = gtk.Label("\nOK")
 		d.vbox.add(status)
 
 		row = 0
 		gui = []
+		# for each field, create label and appropriate gtk element
 		for field in fields :
 			(type, name, valid) = field
 			label = gtk.Label(name)
@@ -147,23 +150,30 @@ class Psyched(gtk.Window) :
 
 		d.show_all()
 
+		# until valid, loop
 		comp = False
 		while not comp :
 			comp = True
 			response = d.run()
 			r = None
+			# if ok pressed, get and validate input
 			if response == gtk.RESPONSE_OK :
 				r = {}
 				for g in gui :
 					(element, type, name, valid) = g
+					# get gui element's value
 					value = self.getter(type)(element)
 					if valid != None :
+						# if there is validation to run, check it and alert
+						# the user if there is an issue
 						v = valid(value)
 						if not v :
 							comp = False
 							status.set_text("\n" + name + " is improperly formatted.")
+					# store value
 					r[name] = value
 
+		# destroy dialog and return
 		d.destroy()
 		return r
 
@@ -248,15 +258,19 @@ class Psyched(gtk.Window) :
 			renderer = None
 			isbool = model.get_column_type(cid) == gobject.TYPE_BOOLEAN
 			if isbool :
+				# create a toggle for boolean types
 				renderer = gtk.CellRendererToggle()
 				renderer.connect("toggled", self.on_item_toggled, model)
 			else :
+				# otherwise input is text, create text entry
 				renderer = gtk.CellRendererText()
 				renderer.connect("edited", self.on_cell_edited, model)
 
+			# align elements to the left
 			renderer.set_property("xalign", 0.0)
 			renderer.set_data("column", cid)
 
+			# create column
 			if isbool :
 				column = gtk.TreeViewColumn(ctext, renderer, active=cid, activatable=col_e)
 			else :
@@ -293,12 +307,15 @@ class Psyched(gtk.Window) :
 
 class BackgroundTimer(threading.Thread) :
 	def __init__(self) :
+		# initialize empty callback list
 		self.callbacks = {'d':[], 'h':[], 'm':[], 's':[]}
+		# start thread
 		threading.Thread.__init__(self)
 
 	def run(self) :
 		global cont
 
+		# initial time info
 		self.gmt = time.gmtime()
 		self.day = time.strftime('%j', self.gmt)
 		self.hour = time.strftime('%H', self.gmt)
@@ -306,12 +323,15 @@ class BackgroundTimer(threading.Thread) :
 		self.sec = time.strftime('%S', self.gmt)
 
 		while cont :
+			# current time info
 			gmt = time.gmtime()
 			_day = time.strftime('%j', gmt)
 			_hour = time.strftime('%H', gmt)
 			_min = time.strftime('%M', gmt)
 			_sec = time.strftime('%S', gmt)
 
+			# for each interval, run the callbacks if interval
+			# has passed
 			if self.day != _day :
 				for c in self.callbacks['d'] :
 					c()
@@ -324,6 +344,8 @@ class BackgroundTimer(threading.Thread) :
 			if self.sec != _sec :
 				for c in self.callbacks['s'] :
 					c()
+
+			# copy current time to old time for use in next cycle
 			self.day = _day
 			self.hour = _hour
 			self.min = _min
