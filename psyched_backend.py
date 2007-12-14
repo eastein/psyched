@@ -80,6 +80,9 @@ class PsychedBackend :
 #--------------------- FETCHERS 
 
 # TASKS
+	def fetch_task(self, id) :
+		return self.cursor.execute('select id,text,due,complete from task where id=?', (id, )).fetchall()[0]
+
 	def fetch_dated_tasks(self, timestamp, range) :
 		return self.cursor.execute('select id,text,due,complete from task where due>=? and due<=?', (timestamp, timestamp + range)).fetchall()
 
@@ -87,6 +90,9 @@ class PsychedBackend :
 		return self.cursor.execute('select id,text,due,complete from task where due isnull').fetchall()
 
 # SCHEDULE
+	def fetch_sched(self, id) :
+		return self.cursor.execute('select id,text,ts,duration,complete,task from sched where id=?', (id, )).fetchall()[0]
+
 	def fetch_task_sched(self, tid) :
 		return self.cursor.execute('select sched.id,sched.text,sched.ts,sched.duration,sched.complete,sched.task from sched,task where task.id=? and sched.task=task.id', (tid, )).fetchall()
 
