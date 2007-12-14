@@ -79,8 +79,6 @@ class Psyched(gtk.Window) :
 		self.win = None
 		self.show_all()
 
-		self.create_sched()
-
 	def __die__(self, parent=None) :
 		global cont
 		cont = False
@@ -91,10 +89,10 @@ class Psyched(gtk.Window) :
 		scols = [(SCOLUMN_COMPLETE, "Attended"), (SCOLUMN_TS_, "Time"), (SCOLUMN_DURATION_, "Length"), (SCOLUMN_TEXT, "Description")]
 		tcols = [(TCOLUMN_COMPLETE, "Done"), (TCOLUMN_DUE_, "Time"), (TCOLUMN_TEXT, "Description")]
 
-		self.add_items_to_vbox(sched, self.iterate_get(days, lambda t, d: self.create_list_sched(self.backend.fetch_schedule(t, d), t), (scols, SCOLUMN_EDITABLE)))
-		self.add_items_to_vbox(tasks, self.iterate_get(days, lambda t, d: self.create_list_task(self.backend.fetch_dated_tasks(t, d), t), (tcols, TCOLUMN_EDITABLE)))
+		self.add_items_to_vbox(sched, self.iterate_get(days, lambda t, d: self.create_list_sched(self.backend.fetch_schedule(t, d), t), (scols, SCOLUMN_EDITABLE), self.create_sched))
+		self.add_items_to_vbox(tasks, self.iterate_get(days, lambda t, d: self.create_list_task(self.backend.fetch_dated_tasks(t, d), t), (tcols, TCOLUMN_EDITABLE), None))
 
-	def iterate_get(self, days, fetch, colargs) :
+	def iterate_get(self, days, fetch, colargs, create) :
 		(l, e) = colargs
 		today = datetime.date.today()
 		r = []
@@ -102,9 +100,10 @@ class Psyched(gtk.Window) :
 			day = today + self.day * i
 			lset = gtk.HBox()
 			lset.pack_start(gtk.Label(day.isoformat()))
-			abutton = gtk.Button(stock=gtk.STOCK_ADD)
-#			abutton.connect("clicked", )
-			lset.pack_start(abutton)
+			if create != None :
+				abutton = gtk.Button(stock=gtk.STOCK_ADD)
+				abutton.connect("clicked", lambda t, d: create(d), (day.year, day.month, day.day))
+				lset.pack_start(abutton)
 			r.append(lset)
 			(t, d) = self.getperiod(today + self.day * i)
 
@@ -144,11 +143,13 @@ class Psyched(gtk.Window) :
 		gui = []
 		# for each field, create label and appropriate gtk element
 		for field in fields :
-			(type, name, valid) = field
+			(type, name, valid, init) = field
 			label = gtk.Label(name)
 			table.attach(label, 0, 1, row, row + 1)
 
 			f = type()
+			for i in init :
+				i(f)
 
 			table.attach(f, 1, 2, row, row + 1)
 			gui.append((f, type, name, valid))
@@ -264,12 +265,18 @@ class Psyched(gtk.Window) :
 		return model
 
 	def create_sched(self, date=None) :
+		calmods = []
+		if date != None :
+			(y, m, d) = date
+			calmods.append(lambda c: c.select_month(m - 1, y))
+			calmods.append(lambda c: c.select_day(d))
+
 		v = self.input_dialog("New Appointment",
 			[
-			(gtk.Calendar, "Date", None),
-			(gtk.Entry, "Time", pv.check_time),
-			(gtk.Entry, "Duration", pv.check_interval),
-			(gtk.Entry, "Description", None)])
+			(gtk.Calendar, "Date", None, calmods),
+			(gtk.Entry, "Time", pv.check_time, []),
+			(gtk.Entry, "Duration", pv.check_interval, []),
+			(gtk.Entry, "Description", None, [])])
 
 		if v != None :
 			# get date and time
