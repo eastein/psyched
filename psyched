@@ -94,7 +94,7 @@ class Psyched(gtk.Window) :
 		self.clear_vbox(sched)
 		self.clear_vbox(tasks)
 		self.add_items_to_vbox(sched, self.iterate_get(self.range, lambda t, d: self.create_list_sched(self.backend.fetch_schedule(t, d), t), (scols, SCOLUMN_EDITABLE), self.create_sched, self.on_s_toggled, self.on_s_edited))
-		self.add_items_to_vbox(tasks, self.iterate_get(self.range, lambda t, d: self.create_list_task(self.backend.fetch_dated_tasks(t, d), t), (tcols, TCOLUMN_EDITABLE), None, self.on_t_toggled, self.on_t_edited))
+		self.add_items_to_vbox(tasks, self.iterate_get(self.range, lambda t, d: self.create_list_task(self.backend.fetch_dated_tasks(t, d), t), (tcols, TCOLUMN_EDITABLE), self.create_task, self.on_t_toggled, self.on_t_edited))
 
 	def iterate_get(self, days, fetch, colargs, create, toggle, edit) :
 		(l, e) = colargs
@@ -267,6 +267,38 @@ class Psyched(gtk.Window) :
 			self.task_model_append(model, self.task_db2li(item))
 
 		return model
+
+	def create_task(self, date=None) :
+		calmods = []
+		if date != None :
+			(y, m, d) = date
+			calmods.append(lambda c: c.select_month(m - 1, y))
+			calmods.append(lambda c: c.select_day(d))
+
+		v = self.input_dialog("New Task",
+			[
+			(gtk.Calendar, "Due Date", None, calmods),
+			(gtk.Entry, "Due Time", pv.check_time, []),
+			(gtk.Entry, "Description", None, [])])
+
+		if v != None :
+			# get date and time
+			(y, mo, d) = v['Due Date']
+			(h, mi) = self.s2loi(v['Due Time'])
+			
+			# create unix timestamp
+			ts = time.mktime((y, mo + 1, d, h, mi, 0, 0, 0, -1))
+
+			# fetch description
+			text = v['Description']
+
+			# insert task into database
+			ns = self.backend.insert_task(text, ts)
+			# commit
+			self.backend.action_complete()
+
+			# fetch item and add it to the GUI if in range
+			self.opt_add_row('task', self.midnight(ts), self.task_db2li(self.backend.fetch_task(ns)), self.task_model_append)
 
 	def create_sched(self, date=None) :
 		calmods = []
