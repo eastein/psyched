@@ -71,7 +71,7 @@ class Psyched(gtk.Window) :
 		tabset.append_page(tasks, tlabel)
 		self.add(tabset)
 	
-		self.populate_tabs(schedule_, tasks_, 3)
+		self.populate_tabs(schedule_, tasks_, 7)
 
 		self.timer = BackgroundTimer()
 		self.timer.start()
@@ -224,6 +224,16 @@ class Psyched(gtk.Window) :
 			)
 
 		return model
+
+	def sched_db2li(self, t) :
+		(id, text, ts, duration, complete, task) = item
+
+		ts_ = time.strftime('%H:%M', time.localtime(ts))
+		duration_ = pb.sec2dur(duration)
+		complete = bool(complete)
+		editable = True
+
+		return (id, text, ts_, duration_, complete, task, editable)
 
 	def create_list_sched(self, list) :
 		model = gtk.ListStore(
