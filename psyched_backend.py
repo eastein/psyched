@@ -120,6 +120,13 @@ class PsychedBackend :
 	def insert_sched(self, text, ts, duration, complete, task) :
 		self.cursor.execute('insert into sched (text, ts, duration, complete, task) values (?, ?, ?, ?, ?)', (text, ts, duration, complete, task))
 		return self.cursor.lastrowid
+
+#--------------------- REMOVERS
+	def remove_task(self, id) :
+		self.cursor.execute('delete from task where id=?', (id, ))
+
+	def remove_sched(self, id) :
+		self.cursor.execute('delete from sched where id=?', (id, ))
 #--------------------- FETCHERS 
 
 # TASKS

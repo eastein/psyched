@@ -112,10 +112,10 @@ class Psyched(gtk.Window) :
 		self.clear_vbox(sched)
 		self.clear_vbox(tasks)
 		# fill boxes
-		self.add_items_to_vbox(sched, self.iterate_get(self.range, lambda t, d: self.create_list_sched(self.backend.fetch_schedule(t, d), t), (scols, SCOLUMN_EDITABLE), self.create_sched, self.on_s_toggled, self.on_s_edited))
-		self.add_items_to_vbox(tasks, self.iterate_get(self.range, lambda t, d: self.create_list_task(self.backend.fetch_dated_tasks(t, d), t), (tcols, TCOLUMN_EDITABLE), self.create_task, self.on_t_toggled, self.on_t_edited))
+		self.add_items_to_vbox(sched, self.iterate_get(self.range, lambda t, d: self.create_list_sched(self.backend.fetch_schedule(t, d), t), (scols, SCOLUMN_EDITABLE), self.create_sched, self.on_s_toggled, self.on_s_edited, 'sched'))
+		self.add_items_to_vbox(tasks, self.iterate_get(self.range, lambda t, d: self.create_list_task(self.backend.fetch_dated_tasks(t, d), t), (tcols, TCOLUMN_EDITABLE), self.create_task, self.on_t_toggled, self.on_t_edited, 'task'))
 
-	def iterate_get(self, days, fetch, colargs, create, toggle, edit) :
+	def iterate_get(self, days, fetch, colargs, create, toggle, edit, kind) :
 		(l, e) = colargs
 		today = datetime.date.today()
 		r = []
@@ -131,7 +131,7 @@ class Psyched(gtk.Window) :
 			(t, d) = self.getperiod(today + self.day * i)
 
 			dl = fetch(t, d)
-			tv = self.create_tree(dl)
+			tv = self.create_tree(dl, kind)
 			self.add_columns(tv, l, e, toggle, edit)
 			r.append(tv)
 		return r
@@ -231,37 +231,52 @@ class Psyched(gtk.Window) :
 		if self.stores[kind].has_key(ts) :
 			function(self.stores[kind][ts], item)
 
-	def create_tree(self, list) :
+	def create_tree(self, list, type) :
 		treeview = gtk.TreeView(list)
 		treeview.set_rules_hint(True)
 		treeview.get_selection().set_mode(gtk.SELECTION_SINGLE)
-		treeview.connect("button-press-event", self.tree_clicked)
+		treeview.connect("button-press-event", self.tree_clicked, type)
 
 		return treeview
 
 	# crete a menu with options to take on the row item: needs more data, such as which tree it is/which type the row is
-	def tree_clicked(self, tree, event) :
+	def tree_clicked(self, tree, event, kind) :
 		if event.button == 3 :
 			pathinfo = tree.get_path_at_pos(int(event.x), int(event.y))
 			if type(pathinfo) == tuple :
 				((path, ), tvc, x, y) = pathinfo
 				model = tree.get_model()
 				iter = model.get_iter(path)
-				model.remove(iter)
-				print event.button
-				self.create_menu([("lol", self.test)], event.button)
+				callback = None
+				if kind == "sched" :
+					callback = self.remove_sched
+				elif kind == "task" :
+					callback = self.remove_task
+				argument = (model, iter)
+				self.create_menu([("Delete", callback, argument)], event.button)
 
-	def test(self, m) :
-		print m
+	def remove_sched(self, menu, t) :
+		(m, i) = t
+		id = m.get_value(i, SCOLUMN_ID)
+		self.backend.remove_sched(id)
+		self.backend.action_complete()
+		m.remove(i)
+
+	def remove_task(self, menu, t) :
+		(m, i) = t
+		id = m.get_value(i, TCOLUMN_ID)
+		self.backend.remove_task(id)
+		self.backend.action_complete()
+		m.remove(i)
 
 	def create_menu(self, list, button) :
 		menu = gtk.Menu()
 		items = []
 		for l in list :
-			(t, c) = l
+			(t, c, a) = l
 			i = gtk.MenuItem(t)
 			if c != None :
-				i.connect('activate', c)
+				i.connect('activate', c, a)
 			i.show()
 			menu.append(i)
 		menu.popup(None, None, None, button, 0)
