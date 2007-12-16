@@ -235,8 +235,13 @@ class Psyched(gtk.Window) :
 		treeview = gtk.TreeView(list)
 		treeview.set_rules_hint(True)
 		treeview.get_selection().set_mode(gtk.SELECTION_SINGLE)
+		treeview.connect("button-press-event", self.tree_clicked)
 
 		return treeview
+
+	def tree_clicked(w, tree, event) :
+		if event.button == 3 :
+			print 'right button clicked'
 
 	# colon delimited string to list of integers
 	def s2loi(self, s) :
@@ -478,7 +483,6 @@ class Psyched(gtk.Window) :
 
 				self.backend.set_sched_ts(id, tsn)
 		elif column == SCOLUMN_DURATION_ :
-			print 'cak'
 			if (pv.check_interval(new_text)) :
 				update = new_text
 
