@@ -38,18 +38,22 @@ class Psyched(gtk.Window) :
 		self.day = datetime.timedelta(days=1)
 		self.backend = pb.PsychedBackend()
 
+		# create window
 		gtk.Window.__init__(self)
 		self.connect('destroy', self.__die__)
 
+		# set up window
 		self.set_title("Psyched")
 		self.set_default_size(520,600)
 		self.set_border_width(0)
 
+		# box panels for schedule and tasks
 		schedule_ = gtk.VBox(homogeneous=False, spacing=4)
 		schedule_.set_border_width(5)
 		tasks_ = gtk.VBox(homogeneous=False, spacing=4)
 		tasks_.set_border_width(5)
 
+		# create tab gui
 		schedule = gtk.ScrolledWindow()
 		schedule.set_policy(gtk.POLICY_NEVER, gtk.POLICY_ALWAYS)
 		tasks = gtk.ScrolledWindow()
@@ -66,16 +70,20 @@ class Psyched(gtk.Window) :
 		tabset.append_page(tasks, tlabel)
 		self.add(tabset)
 
+		# read range of days and populate tabs
 		self.range = self.backend.setting_get(pb.SETTING_RANGE)
 		self.populate_tabs(schedule_, tasks_)
 
+		# schedule repopulation at midngith
 		self.timer = BackgroundTimer()
 		self.timer.start()
 		self.timer.add_callback('d', lambda: self.populate_tabs(schedule_, tasks_))
 
+		# show window
 		self.win = None
 		self.show_all()
 
+		# status icon
 		self.shown = True
 		self.icon = gtk.status_icon_new_from_stock(gtk.STOCK_FILE)
 		self.icon.connect('activate', self.icon_click)
@@ -93,13 +101,17 @@ class Psyched(gtk.Window) :
 		cont = False
 
 	def populate_tabs(self, sched, tasks) :
+		# reinitialize list dicts
 		self.stores = {'sched' : {}, 'task' : {}}
 
+		# columns for each
 		scols = [(SCOLUMN_COMPLETE, "Attended"), (SCOLUMN_TS_, "Time"), (SCOLUMN_DURATION_, "Length"), (SCOLUMN_TEXT, "Description")]
 		tcols = [(TCOLUMN_COMPLETE, "Done"), (TCOLUMN_DUE_, "Time"), (TCOLUMN_TEXT, "Description")]
 
+		# clear boxes
 		self.clear_vbox(sched)
 		self.clear_vbox(tasks)
+		# fill boxes
 		self.add_items_to_vbox(sched, self.iterate_get(self.range, lambda t, d: self.create_list_sched(self.backend.fetch_schedule(t, d), t), (scols, SCOLUMN_EDITABLE), self.create_sched, self.on_s_toggled, self.on_s_edited))
 		self.add_items_to_vbox(tasks, self.iterate_get(self.range, lambda t, d: self.create_list_task(self.backend.fetch_dated_tasks(t, d), t), (tcols, TCOLUMN_EDITABLE), self.create_task, self.on_t_toggled, self.on_t_edited))
 
