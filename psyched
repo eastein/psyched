@@ -240,11 +240,31 @@ class Psyched(gtk.Window) :
 		return treeview
 
 	# crete a menu with options to take on the row item: needs more data, such as which tree it is/which type the row is
-	def tree_clicked(w, tree, event) :
+	def tree_clicked(self, tree, event) :
 		if event.button == 3 :
-			((path, ), tvc, x, y) = tree.get_path_at_pos(event.x, event.y)
-			print path
+			pathinfo = tree.get_path_at_pos(int(event.x), int(event.y))
+			if type(pathinfo) == tuple :
+				((path, ), tvc, x, y) = pathinfo
+				model = tree.get_model()
+				iter = model.get_iter(path)
+				model.remove(iter)
+				print event.button
+				self.create_menu([("lol", self.test)], event.button)
 
+	def test(self, m) :
+		print m
+
+	def create_menu(self, list, button) :
+		menu = gtk.Menu()
+		items = []
+		for l in list :
+			(t, c) = l
+			i = gtk.MenuItem(t)
+			if c != None :
+				i.connect('activate', c)
+			i.show()
+			menu.append(i)
+		menu.popup(None, None, None, button, 0)
 
 	# colon delimited string to list of integers
 	def s2loi(self, s) :

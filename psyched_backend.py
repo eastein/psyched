@@ -25,7 +25,7 @@ types = {
 uses localtime because mktime requires local time
 '''
 def utime() :
-	return time.mktime(time.localtime())
+	return int(time.mktime(time.localtime()))
 
 def fupack(t) :
 	(a, ) = t
