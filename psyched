@@ -239,9 +239,12 @@ class Psyched(gtk.Window) :
 
 		return treeview
 
+	# crete a menu with options to take on the row item: needs more data, such as which tree it is/which type the row is
 	def tree_clicked(w, tree, event) :
 		if event.button == 3 :
-			print 'right button clicked'
+			((path, ), tvc, x, y) = tree.get_path_at_pos(event.x, event.y)
+			print path
+
 
 	# colon delimited string to list of integers
 	def s2loi(self, s) :
