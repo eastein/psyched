@@ -66,7 +66,7 @@ class Psyched(gtk.Window) :
 		tabset.append_page(tasks, tlabel)
 		self.add(tabset)
 
-		self.range = 7
+		self.range = self.backend.setting_get(pb.SETTING_RANGE)
 		self.populate_tabs(schedule_, tasks_)
 
 		self.timer = BackgroundTimer()

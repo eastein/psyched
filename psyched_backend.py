@@ -12,8 +12,13 @@ import pysqlite2.dbapi2 as sqlite
 
 (
 	SETTING_DATAVERSION,
-	SETTING_STANDIN
+	SETTING_RANGE
 ) = range(2)
+
+types = {
+	SETTING_DATAVERSION : int,
+	SETTING_RANGE : int
+	}
 
 '''GMT unix timestamp
 
@@ -67,7 +72,8 @@ class PsychedBackend :
 	Only use this function for initialization - not for resetting settings to default.
 	'''
 	def initial_settings(self) :
-		self.setting_set(SETTING_DATAVERSION, "1")
+		self.setting_set(SETTING_DATAVERSION, 1)
+		self.setting_set(SETTING_RANGE, 7)
 
 #--------------------- TRANSACTION SAFETY
 	def action_complete(self) :
@@ -148,6 +154,8 @@ class PsychedBackend :
 			return None
 		elif len(s) == 1 :
 			(r, ) = s[0]
+			if types[id] == int :
+				return int(r)
 			return r
 		else :
 			raise RuntimeError, 'Multiple instances of one setting: ' + str(id)
@@ -170,6 +178,7 @@ class PsychedBackend :
 	If the setting is set already, it is overwritten.
 	'''
 	def setting_set(self, id, data) :
+		data = str(data)
 		s = self.cursor.execute('select id from settings where id=?', (id,)).fetchall()
 		if len(s) == 0 :
 			self.cursor.execute('insert into settings (id, setting) values (?, ?)', (id, data))
