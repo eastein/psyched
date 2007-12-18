@@ -36,6 +36,7 @@ cont = True
 class Psyched(gtk.Window) :
 	def __init__(self, parent=None) :
 		self.day = datetime.timedelta(days=1)
+		self.begin = datetime.date.today()
 		self.backend = pb.PsychedBackend()
 
 		# create window
@@ -82,8 +83,13 @@ class Psyched(gtk.Window) :
 		tabset.append_page(schedule, slabel)
 		tabset.append_page(tasks, tlabel)
 
+		# calendar day selection
+		topcal = gtk.Calendar()
+		topcal.connect('day-selected', self.date_modify, schedule_, tasks_)
+
 		#build gui with both range buttons and tabset
 		mainvbox = gtk.VBox()
+		mainvbox.pack_start(topcal, expand=False)
 		mainvbox.pack_start(rangeh, expand=False)
 		mainvbox.pack_start(tabset, expand=True)
 		self.add(mainvbox)
@@ -103,8 +109,14 @@ class Psyched(gtk.Window) :
 
 		# status icon
 		self.shown = True
-		self.icon = gtk.status_icon_new_from_stock(gtk.STOCK_FILE)
+		self.icon = gtk.status_icon_new_from_file('/home/eastein/dev/psyched/resources/psyched.png')
+		self.icon.set_tooltip('Psyched')
 		self.icon.connect('activate', self.icon_click)
+
+	def date_modify(self, cal, s, t) :
+		(y, m, d) = cal.get_date()
+		self.begin = datetime.date(y, m + 1, d)
+		self.populate_tabs(s, t, True)
 
 	def range_modify(self, w, r, s, t) :
 		self.backend.setting_set(pb.SETTING_RANGE, r)
@@ -141,10 +153,9 @@ class Psyched(gtk.Window) :
 
 	def iterate_get(self, days, fetch, colargs, create, toggle, edit, kind) :
 		(l, e) = colargs
-		today = datetime.date.today()
 		r = []
 		for i in range(days) :
-			day = today + self.day * i
+			day = self.begin + self.day * i
 			lset = gtk.HBox()
 			dlab = gtk.Label(day.isoformat())
 			dlab.show()
@@ -155,7 +166,7 @@ class Psyched(gtk.Window) :
 				abutton.show()
 				lset.pack_start(abutton)
 			r.append(lset)
-			(t, d) = self.getperiod(today + self.day * i)
+			(t, d) = self.getperiod(self.begin + self.day * i)
 
 			dl = fetch(t, d)
 			tv = self.create_tree(dl, kind)

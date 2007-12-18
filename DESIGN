@@ -11,16 +11,15 @@ Primary paradigms/features:
 			paging through
 		scale selection (day/3day/week)
 
-Version	Feature
-0	task (create task)
-0	create appointment (unconnected to task)
-1	annotate (add or edit notes on a task for item)
-0	schedule task (add an appointment to a task)
-		default text is the name of the task
-0		schedule with date and time
-0		schedule just date
-0		schedule due date
-	reschedule task (bring up editable list of appointments for task)
+Done	Version	Feature
+x	0	task (create task)
+x	0	create appointment (unconnected to task)
+x	0	change time, description, length, and attendance status of tasks & scheduled appointments
+x	0	change range of view
+x	0	change displayed date
+x	0	delete items
+	0	reschedule with calendar
+	1	annotate (add or edit notes on a task for item)
 
 UI Modes
 Schedule
