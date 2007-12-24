@@ -27,6 +27,13 @@ uses localtime because mktime requires local time
 def utime() :
 	return int(time.mktime(time.localtime()))
 
+def ts2dt(ts) :
+	(y, m, d, a, b, c, d2, e, f) = time.localtime(ts)
+	return (y, m, d)
+
+def tod(ts) :
+	return time.strftime('%H:%M', time.localtime(ts))
+
 def fupack(t) :
 	(a, ) = t
 	return a

@@ -39,6 +39,8 @@ class Psyched(gtk.Window) :
 		self.begin = datetime.date.today()
 		self.backend = pb.PsychedBackend()
 
+		support = {'icon' : '/home/eastein/dev/psyched/resources/psyched.png'}
+
 		# create window
 		gtk.Window.__init__(self)
 		self.connect('destroy', self.__die__)
@@ -103,15 +105,16 @@ class Psyched(gtk.Window) :
 		self.timer.start()
 		self.timer.add_callback('d', lambda: self.populate_tabs(schedule_, tasks_, True))
 
+		# icons
+		self.shown = True
+		self.icon = gtk.status_icon_new_from_file(support['icon'])
+		gtk.window_set_default_icon_from_file(support['icon'])
+		self.icon.set_tooltip('Psyched')
+		self.icon.connect('activate', self.icon_click)
+
 		# show window
 		self.win = None
 		self.show_all()
-
-		# status icon
-		self.shown = True
-		self.icon = gtk.status_icon_new_from_file('/home/eastein/dev/psyched/resources/psyched.png')
-		self.icon.set_tooltip('Psyched')
-		self.icon.connect('activate', self.icon_click)
 
 	def date_modify(self, cal, s, t) :
 		(y, m, d) = cal.get_date()
@@ -290,10 +293,12 @@ class Psyched(gtk.Window) :
 				callback = None
 				if kind == "sched" :
 					callback = self.remove_sched
+					res = self.reschedule_sched
 				elif kind == "task" :
 					callback = self.remove_task
+					res = self.reschedule_task
 				argument = (model, iter)
-				self.create_menu([("Delete", callback, argument)], event.button)
+				self.create_menu([("Reschedule", res, argument), ("Delete", callback, argument)], event.button)
 
 	def remove_sched(self, menu, t) :
 		(m, i) = t
@@ -333,12 +338,52 @@ class Psyched(gtk.Window) :
 			c /= 60
 		return r
 
+	def create_calmod(self, date) :
+		(y, m, d) = date
+		calmods = []
+		calmods.append(lambda c: c.select_month(m - 1, y))
+		calmods.append(lambda c: c.select_day(d))
+		return calmods
+
+	def reschedule_sched(self, menu, t) :
+		(model, iter) = t
+		id = model.get_value(iter, SCOLUMN_ID)
+		t = self.backend.get_sched_ts(id)
+
+		od = pb.ts2dt(t)
+		calmods = self.create_calmod(od)
+		tmods = [lambda e: e.set_text(pb.tod(t))]
+
+		v = self.input_dialog("Reschedule",
+			[
+			(gtk.Calendar, "Due Date", None, calmods),
+			(gtk.Entry, "Due Time", pv.check_time, tmods)])
+
+		if v != None :
+			# get date and time
+			(y, mo, d) = v['Due Date']
+			(h, mi) = self.s2loi(v['Due Time'])
+
+			# create unix timestamp
+			ts = time.mktime((y, mo + 1, d, h, mi, 0, 0, 0, -1))
+
+			# commit to database
+			self.backend.set_sched_ts(id, ts)
+			self.backend.action_complete()
+
+			# same day, modityf row
+			if od == (y, mo + 1, d) :
+				model.set(iter, SCOLUMN_TS_, pb.tod(ts))
+			# different day, move row
+			else :
+				model.remove(iter)
+				rec = self.backend.fetch_sched(id)
+				self.opt_add_row('sched', self.midnight(ts), self.sched_db2li(rec), self.sched_model_append)
+
 	def create_task(self, date=None) :
 		calmods = []
 		if date != None :
-			(y, m, d) = date
-			calmods.append(lambda c: c.select_month(m - 1, y))
-			calmods.append(lambda c: c.select_day(d))
+			self.create_calmod(date)
 
 		v = self.input_dialog("New Task",
 			[
@@ -367,8 +412,7 @@ class Psyched(gtk.Window) :
 
 	def task_db2li(self, t) :
 		(id, text, due, complete) = t
-
-		due_ = time.strftime('%H:%M', time.localtime(due))
+		due_ = pb.tod(due)
 		complete = bool(complete)
 		editable = True
 
@@ -402,12 +446,45 @@ class Psyched(gtk.Window) :
 
 		return model
 
+	def reschedule_task(self, menu, t) :
+		(model, iter) = t
+		id = model.get_value(iter, TCOLUMN_ID)
+		due = self.backend.get_task_due(id)
+
+		od = pb.ts2dt(due)
+		calmods = self.create_calmod(od)
+		tmods = [lambda e: e.set_text(pb.tod(due))]
+
+		v = self.input_dialog("Reschedule",
+			[
+			(gtk.Calendar, "Due Date", None, calmods),
+			(gtk.Entry, "Due Time", pv.check_time, tmods)])
+
+		if v != None :
+			# get date and time
+			(y, mo, d) = v['Due Date']
+			(h, mi) = self.s2loi(v['Due Time'])
+
+			# create unix timestamp
+			ts = time.mktime((y, mo + 1, d, h, mi, 0, 0, 0, -1))
+
+			# commit to database
+			self.backend.set_task_due(id, ts)
+			self.backend.action_complete()
+
+			# same day, modityf row
+			if od == (y, mo + 1, d) :
+				model.set(iter, TCOLUMN_DUE_, pb.tod(ts))
+			# different day, move row
+			else :
+				model.remove(iter)
+				rec = self.backend.fetch_task(id)
+				self.opt_add_row('task', self.midnight(ts), self.task_db2li(rec), self.task_model_append)
+
 	def create_sched(self, date=None) :
 		calmods = []
 		if date != None :
-			(y, m, d) = date
-			calmods.append(lambda c: c.select_month(m - 1, y))
-			calmods.append(lambda c: c.select_day(d))
+			calmods = self.create_calmod(date)
 
 		v = self.input_dialog("New Appointment",
 			[
@@ -440,8 +517,7 @@ class Psyched(gtk.Window) :
 
 	def sched_db2li(self, t) :
 		(id, text, ts, duration, complete, task) = t
-
-		ts_ = time.strftime('%H:%M', time.localtime(ts))
+		ts_ = pb.tod(ts)
 		duration_ = pb.sec2dur(duration)
 		complete = bool(complete)
 		editable = True
