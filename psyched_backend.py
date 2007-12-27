@@ -3,6 +3,8 @@ Psyched is a scheduling and task management application.
 
 Copyright 2007 Eric Stein
 License: GPL2/GPL3, at your option.
+
+$Id$
 '''
 
 import os

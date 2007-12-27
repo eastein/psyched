@@ -2,7 +2,27 @@ Psyched is a simple, fast scheduling application for planning your life.
 It is task and appointment based, with operations for adding,
 modifying, deleting and rescheduling both tasks and appointments.
 
+Design Tenets
+	100% keystroke accessible
+	Simplest action simplest to complete
+	Good visual cues
+
 Repeats
+	Types
+		n weekly
+		n week of month
+		n daily
+		n day of month
+
+	Parameters
+		type
+		n
+		description
+		time of day
+		length
+		first date
+		not after date
+
 	add individual records
 		pro
 			simplified conflicts

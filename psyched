@@ -4,6 +4,8 @@ Psyched is a scheduling and task management application.
 
 Copyright 2007 Eric Stein
 License: GPL2/GPL3, at your option.
+
+$Id$
 '''
 
 import gtk
@@ -13,6 +15,7 @@ import datetime
 import threading
 import psyched_validate as pv
 import psyched_backend as pb
+import psyched_strings as ps
 
 (
 	SCOLUMN_ID,
@@ -46,7 +49,7 @@ class Psyched(gtk.Window) :
 		self.connect('destroy', self.__die__)
 
 		# set up window
-		self.set_title("Psyched")
+		self.set_title(ps.PROGRAM)
 		self.set_default_size(600,800)
 		self.set_border_width(0)
 
@@ -60,11 +63,11 @@ class Psyched(gtk.Window) :
 		rangeh = gtk.HButtonBox()
 		rangeh.set_layout(gtk.BUTTONBOX_START)
 
-		b3 = gtk.Button("3 Days")
+		b3 = gtk.Button(ps.PERIOD_3)
 		b3.connect("clicked", self.range_modify, 3, schedule_, tasks_)
-		b7 = gtk.Button("Week")
+		b7 = gtk.Button(ps.PERIOD_7)
 		b7.connect("clicked", self.range_modify, 7, schedule_, tasks_)
-		b14 = gtk.Button("2 Weeks")
+		b14 = gtk.Button(ps.PERIOD_14)
 		b14.connect("clicked", self.range_modify, 14, schedule_, tasks_)
 
 		# paging buttons
@@ -88,8 +91,8 @@ class Psyched(gtk.Window) :
 		schedule.add_with_viewport(schedule_)
 		tasks.add_with_viewport(tasks_)
 
-		slabel = gtk.Label("Schedule")
-		tlabel = gtk.Label("Tasks")
+		slabel = gtk.Label(ps.SCHEDULE)
+		tlabel = gtk.Label(ps.TASKS)
 
 		tabset = gtk.Notebook()
 		tabset.append_page(schedule, slabel)
@@ -119,7 +122,7 @@ class Psyched(gtk.Window) :
 		self.shown = True
 		self.icon = gtk.status_icon_new_from_file(support['icon'])
 		gtk.window_set_default_icon_from_file(support['icon'])
-		self.icon.set_tooltip('Psyched')
+		self.icon.set_tooltip(ps.PROGRAM)
 		self.icon.connect('activate', self.icon_click)
 
 		# show window
@@ -150,6 +153,7 @@ class Psyched(gtk.Window) :
 	def icon_click(self, i) :
 		self.shown = not self.shown
 		if self.shown :
+			self.unmaximize()
 			self.show_all()
 		else :
 			self.hide()
@@ -164,8 +168,8 @@ class Psyched(gtk.Window) :
 		self.stores = {'sched' : {}, 'task' : {}}
 
 		# columns for each
-		scols = [(SCOLUMN_COMPLETE, "Attended"), (SCOLUMN_TS_, "Time"), (SCOLUMN_DURATION_, "Length"), (SCOLUMN_TEXT, "Description")]
-		tcols = [(TCOLUMN_COMPLETE, "Done"), (TCOLUMN_DUE_, "Time"), (TCOLUMN_TEXT, "Description")]
+		scols = [(SCOLUMN_COMPLETE, ps.ATTENDED), (SCOLUMN_TS_, ps.TIME), (SCOLUMN_DURATION_, ps.DURATION), (SCOLUMN_TEXT, ps.DESCRIPTION)]
+		tcols = [(TCOLUMN_COMPLETE, ps.DONE), (TCOLUMN_DUE_, ps.TIME), (TCOLUMN_TEXT, ps.DESCRIPTION)]
 
 		# clear boxes
 		self.clear_vbox(sched)
@@ -225,7 +229,7 @@ class Psyched(gtk.Window) :
 
 		# create status label
 		d.vbox.add(table)
-		status = gtk.Label("\nOK")
+		status = gtk.Label("\n" + ps.OK)
 		d.vbox.add(status)
 
 		row = 0
@@ -266,7 +270,7 @@ class Psyched(gtk.Window) :
 						v = valid(value)
 						if not v :
 							comp = False
-							status.set_text("\n" + name + " is improperly formatted.")
+							status.set_text("\n" + name + ps.IMPROPER)
 					# store value
 					r[name] = value
 
@@ -323,7 +327,7 @@ class Psyched(gtk.Window) :
 					callback = self.remove_task
 					res = self.reschedule_task
 				argument = (model, iter)
-				self.create_menu([("Reschedule", res, argument), ("Delete", callback, argument)], event.button)
+				self.create_menu([(ps.RESCHEDULE, res, argument), (ps.DELETE, callback, argument)], event.button)
 
 	def remove_sched(self, menu, t) :
 		(m, i) = t
@@ -379,15 +383,15 @@ class Psyched(gtk.Window) :
 		calmods = self.create_calmod(od)
 		tmods = [lambda e: e.set_text(pb.tod(t))]
 
-		v = self.input_dialog("Reschedule",
+		v = self.input_dialog(ps.RESCHEDULE,
 			[
-			(gtk.Calendar, "Due Date", None, calmods),
-			(gtk.Entry, "Due Time", pv.check_time, tmods)])
+			(gtk.Calendar, ps.DUEDATE, None, calmods),
+			(gtk.Entry, ps.DUETIME, pv.check_time, tmods)])
 
 		if v != None :
 			# get date and time
-			(y, mo, d) = v['Due Date']
-			(h, mi) = self.s2loi(v['Due Time'])
+			(y, mo, d) = v[ps.DUEDATE]
+			(h, mi) = self.s2loi(v[ps.DUETIME])
 
 			# create unix timestamp
 			ts = time.mktime((y, mo + 1, d, h, mi, 0, 0, 0, -1))
@@ -410,22 +414,22 @@ class Psyched(gtk.Window) :
 		if date != None :
 			self.create_calmod(date)
 
-		v = self.input_dialog("New Task",
+		v = self.input_dialog(ps.NEWTASK,
 			[
-			(gtk.Calendar, "Due Date", None, calmods),
-			(gtk.Entry, "Due Time", pv.check_time, []),
-			(gtk.Entry, "Description", None, [])])
+			(gtk.Calendar, ps.DUEDATE, None, calmods),
+			(gtk.Entry, ps.DUETIME, pv.check_time, []),
+			(gtk.Entry, ps.DESCRIPTION, None, [])])
 
 		if v != None :
 			# get date and time
-			(y, mo, d) = v['Due Date']
-			(h, mi) = self.s2loi(v['Due Time'])
+			(y, mo, d) = v[ps.DUEDATE]
+			(h, mi) = self.s2loi(v[ps.DUETIME])
 			
 			# create unix timestamp
 			ts = time.mktime((y, mo + 1, d, h, mi, 0, 0, 0, -1))
 
 			# fetch description
-			text = v['Description']
+			text = v[ps.DESCRIPTION]
 
 			# insert task into database
 			ns = self.backend.insert_task(text, ts)
@@ -480,15 +484,15 @@ class Psyched(gtk.Window) :
 		calmods = self.create_calmod(od)
 		tmods = [lambda e: e.set_text(pb.tod(due))]
 
-		v = self.input_dialog("Reschedule",
+		v = self.input_dialog(ps.RESCHEDULE,
 			[
-			(gtk.Calendar, "Due Date", None, calmods),
-			(gtk.Entry, "Due Time", pv.check_time, tmods)])
+			(gtk.Calendar, ps.DUEDATE, None, calmods),
+			(gtk.Entry, ps.DUETIME, pv.check_time, tmods)])
 
 		if v != None :
 			# get date and time
-			(y, mo, d) = v['Due Date']
-			(h, mi) = self.s2loi(v['Due Time'])
+			(y, mo, d) = v[ps.DUEDATE]
+			(h, mi) = self.s2loi(v[ps.DUETIME])
 
 			# create unix timestamp
 			ts = time.mktime((y, mo + 1, d, h, mi, 0, 0, 0, -1))
@@ -511,26 +515,26 @@ class Psyched(gtk.Window) :
 		if date != None :
 			calmods = self.create_calmod(date)
 
-		v = self.input_dialog("New Appointment",
+		v = self.input_dialog(ps.NEWAPPOINTMENT,
 			[
-			(gtk.Calendar, "Date", None, calmods),
-			(gtk.Entry, "Time", pv.check_time, []),
-			(gtk.Entry, "Duration", pv.check_interval, []),
-			(gtk.Entry, "Description", None, [])])
+			(gtk.Calendar, ps.DATE, None, calmods),
+			(gtk.Entry, ps.TIME, pv.check_time, []),
+			(gtk.Entry, ps.DURATION, pv.check_interval, []),
+			(gtk.Entry, ps.DESCRIPTION, None, [])])
 
 		if v != None :
 			# get date and time
-			(y, mo, d) = v['Date']
-			(h, mi) = self.s2loi(v['Time'])
+			(y, mo, d) = v[ps.DATE]
+			(h, mi) = self.s2loi(v[ps.TIME])
 
 			# create unix timestamp
 			ts = time.mktime((y, mo + 1, d, h, mi, 0, 0, 0, -1))
 
 			# convert duration to seconds
-			duration = self.dur2sec(self.s2loi(v['Duration']))
+			duration = self.dur2sec(self.s2loi(v[ps.DURATION]))
 
 			# fetch description
-			text = v['Description']
+			text = v[ps.DESCRIPTION]
 
 			# insert schedule item into database
 			ns = self.backend.insert_sched(text, ts, duration, 0, 0)
@@ -671,7 +675,7 @@ class Psyched(gtk.Window) :
 		self.backend.action_complete()
 				
 		if update == None :
-			self.dialog('Incorrect formatting.')
+			self.dialog(ps.ERR_FORMATTING)
 		else :
 			model.set(iter, column, update)
 
@@ -700,7 +704,7 @@ class Psyched(gtk.Window) :
 		self.backend.action_complete()
 				
 		if update == None :
-			self.dialog('Incorrect formatting.')
+			self.dialog(ps.ERR_FORMATTING)
 		else :
 			model.set(iter, column, update)
 
