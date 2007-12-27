@@ -59,15 +59,25 @@ class Psyched(gtk.Window) :
 		# range buttons
 		rangeh = gtk.HButtonBox()
 		rangeh.set_layout(gtk.BUTTONBOX_START)
+
 		b3 = gtk.Button("3 Days")
 		b3.connect("clicked", self.range_modify, 3, schedule_, tasks_)
 		b7 = gtk.Button("Week")
 		b7.connect("clicked", self.range_modify, 7, schedule_, tasks_)
 		b14 = gtk.Button("2 Weeks")
 		b14.connect("clicked", self.range_modify, 14, schedule_, tasks_)
+
+		# paging buttons
+		bn = gtk.Button(stock=gtk.STOCK_GO_FORWARD)
+		bn.connect("clicked", self.date_page_forward, schedule_, tasks_)
+		bb = gtk.Button(stock=gtk.STOCK_GO_BACK)
+		bb.connect("clicked", self.date_page_back, schedule_, tasks_)
+
 		rangeh.pack_start(b3, expand=False)
 		rangeh.pack_start(b7, expand=False)
 		rangeh.pack_start(b14, expand=False)
+		rangeh.pack_start(bb, expand=False)
+		rangeh.pack_start(bn, expand=False)
 
 		# create tab gui
 		schedule = gtk.ScrolledWindow()
@@ -86,12 +96,12 @@ class Psyched(gtk.Window) :
 		tabset.append_page(tasks, tlabel)
 
 		# calendar day selection
-		topcal = gtk.Calendar()
-		topcal.connect('day-selected', self.date_modify, schedule_, tasks_)
+		self.cal = gtk.Calendar()
+		self.cal.connect('day-selected', self.date_modify, schedule_, tasks_)
 
 		#build gui with both range buttons and tabset
 		mainvbox = gtk.VBox()
-		mainvbox.pack_start(topcal, expand=False)
+		mainvbox.pack_start(self.cal, expand=False)
 		mainvbox.pack_start(rangeh, expand=False)
 		mainvbox.pack_start(tabset, expand=True)
 		self.add(mainvbox)
@@ -120,6 +130,16 @@ class Psyched(gtk.Window) :
 		(y, m, d) = cal.get_date()
 		self.begin = datetime.date(y, m + 1, d)
 		self.populate_tabs(s, t, True)
+	
+	def date_page_forward(self, b, s, t) :
+		self.begin += self.day * self.range
+		self.populate_tabs(s, t, True)
+		self.set_calendar(self.begin)
+
+	def date_page_back(self, b, s, t) :
+		self.begin -= self.day * self.range
+		self.populate_tabs(s, t, True)
+		self.set_calendar(self.begin)
 
 	def range_modify(self, w, r, s, t) :
 		self.backend.setting_set(pb.SETTING_RANGE, r)
@@ -181,6 +201,11 @@ class Psyched(gtk.Window) :
 		f1 = int(time.mktime(d.timetuple()))
 		f2 = int(time.mktime((d + self.day).timetuple()))
 		return (f1, f2 - f1)
+	
+	def set_calendar(self, dt) :
+		(y, m, d, a, aa, aaa, aaaa, aaaaa, aaaaaa) = dt.timetuple()
+		self.cal.select_month(m - 1, y)
+		self.cal.select_day(d)
 
 	def getter(self, type) :
 		if type == gtk.Calendar :

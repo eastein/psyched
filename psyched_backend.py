@@ -20,11 +20,11 @@ types = {
 	SETTING_RANGE : int
 	}
 
-'''GMT unix timestamp
-
-uses localtime because mktime requires local time
-'''
 def utime() :
+	'''GMT unix timestamp
+	
+	uses localtime because mktime requires local time
+	'''
 	return int(time.mktime(time.localtime()))
 
 def ts2dt(ts) :
@@ -46,11 +46,11 @@ def sec2dur(s) :
 		m = '0' + m
 	return h + ':' + m
 
-'''Psyched Backend
-
-handles storage, querying, and changes.
-'''
 class PsychedBackend :
+	'''Psyched Backend
+	
+	handles storage, querying, and changes.
+	'''
 	def __init__(self) :
 		os.chdir(self.get_directory())
 		self.conn = sqlite.connect("psyched.db")
@@ -74,11 +74,11 @@ class PsychedBackend :
 		self.cursor.execute('create table task (id integer primary key autoincrement, text blob, due integer null, complete integer)')
 		self.cursor.execute('create table sched (id integer primary key autoincrement, text blob, ts integer, duration integer, complete integer, task integer key)')
 
-	'''Default settings
-
-	Only use this function for initialization - not for resetting settings to default.
-	'''
 	def initial_settings(self) :
+		'''Default settings
+	
+		Only use this function for initialization - not for resetting settings to default.
+		'''
 		self.setting_set(SETTING_DATAVERSION, 1)
 		self.setting_set(SETTING_RANGE, 7)
 
@@ -157,12 +157,12 @@ class PsychedBackend :
 		return self.cursor.execute('select id,text,ts,duration,complete,task from sched where ts>=? and ts<=?', (timestamp, timestamp + range)).fetchall()
 
 #--------------------- SETTINGS
-	'''Get a setting
-
-	If the setting exists, it is returned as a unicode string.
-	If it does not exist, returns None
-	'''
 	def setting_get(self, id) :
+		'''Get a setting
+	
+		If the setting exists, it is returned as a unicode string.
+		If it does not exist, returns None
+		'''
 		s = self.cursor.execute('select setting from settings where id=?', (id,)).fetchall()
 		if len(s) == 0 :
 			return None
@@ -174,11 +174,11 @@ class PsychedBackend :
 		else :
 			raise RuntimeError, 'Multiple instances of one setting: ' + str(id)
 
-	'''Unset a setting
-
-	If the setting exists, it is unset.
-	'''
 	def setting_unset(self, id) :
+		'''Unset a setting
+	
+		If the setting exists, it is unset.
+		'''
 		s = self.cursor.execute('select id from settings where id=?', (id,)).fetchall()
 		if len(s) == 1 :
 			self.cursor.execute('delete from settings where id=?', (id, ))
@@ -187,11 +187,11 @@ class PsychedBackend :
 			raise RuntimeError, 'Multiple instances of one setting: ' + str(id)
 		self.conn.commit()
 
-	'''Set a setting
-
-	If the setting is set already, it is overwritten.
-	'''
 	def setting_set(self, id, data) :
+		'''Set a setting
+	
+		If the setting is set already, it is overwritten.
+		'''
 		data = str(data)
 		s = self.cursor.execute('select id from settings where id=?', (id,)).fetchall()
 		if len(s) == 0 :
@@ -204,11 +204,11 @@ class PsychedBackend :
 		
 
 #--------------------- FILE ACCESS
-	'''Get the working directory
-
-	On UNIX systems, this is ~/.psyched.  Other systems are currently not supported.
-	'''
 	def get_directory(self) :
+		'''Get the working directory
+	
+		On UNIX systems, this is ~/.psyched.  Other systems are currently not supported.
+		'''
 		dir = os.path.join(os.path.expanduser('~'), '.psyched')
 		try:
 			os.mkdir(dir)

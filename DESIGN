@@ -1,29 +1,35 @@
 Psyched is a simple, fast scheduling application for planning your life.
-It is task and appointment based, with fast easy operations for adding,
-modifying and annotating both tasks and appointments.
+It is task and appointment based, with operations for adding,
+modifying, deleting and rescheduling both tasks and appointments.
 
-Primary paradigms/features:
-	Modification
-		time conflicts/near conflicts
-	Viewing
-		simple zoom to any period
-			both relative and absolute date
-			paging through
-		scale selection (day/3day/week)
+Repeats
+	add individual records
+		pro
+			simplified conflicts
+		con
+			conflicts with other repeating events can produce
+			  a very large number of conflicts
+			cancellation of single events simpler
 
-Done	Version	Feature
-x	0	task (create task)
-x	0	create appointment (unconnected to task)
-x	0	change time, description, length, and attendance status of tasks & scheduled appointments
-x	0	change range of view
-x	0	change displayed date
-x	0	delete items
-x	0	reschedule with calendar
-	1	annotate (add or edit notes on a task for item)
+	format describing repeating method
+		pro
+			conflict detection with other repeating events a bit simpler
+		con
+			conflict detection with normal events difficult
 
-UI Modes
-Schedule
-	Show All
-	Show Subset
-Tasks
-	By Due Date
+Done	Feature
+
+Release 0
+x	task (create task)
+x	create appointment (unconnected to task)
+x	change time, description, length, and attendance status of tasks & scheduled appointments
+x	change range of view
+x	change displayed date
+x	delete items
+x	paging
+x	reschedule with calendar
+	recurring items
+	time conflicts
+
+Release 1
+	annotate (add or edit notes on a task for item)
