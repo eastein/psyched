@@ -3,15 +3,15 @@
 Psyched is a scheduling and task management application.
 
 Copyright 2007 Eric Stein
-License: GPL2/GPL3, at your option.
+License: GPL2/GPL3, at your option.  For details see LICENSE.
 
 $Id$
 '''
 
-PROGRAM 	= "psyched"
-PERIOD_3	= "3 Days"
-PERIOD_7	= "Week"
-PERIOD_14	= "2 Weeks"
+PROGRAM 	= "Psyched"
+PERIOD_3	= "_3 Days"
+PERIOD_7	= "_Week"
+PERIOD_14	= "_2 Weeks"
 SCHEDULE	= "Schedule"
 TASKS		= "Tasks"
 ATTENDED	= "Attended"

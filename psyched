@@ -3,7 +3,7 @@
 Psyched is a scheduling and task management application.
 
 Copyright 2007 Eric Stein
-License: GPL2/GPL3, at your option.
+License: GPL2/GPL3, at your option.  For details see LICENSE.
 
 $Id$
 '''
@@ -63,12 +63,16 @@ class Psyched(gtk.Window) :
 		rangeh = gtk.HButtonBox()
 		rangeh.set_layout(gtk.BUTTONBOX_START)
 
+		self.rbuttons = {}
 		b3 = gtk.Button(ps.PERIOD_3)
 		b3.connect("clicked", self.range_modify, 3, schedule_, tasks_)
+		self.rbuttons[3] = b3
 		b7 = gtk.Button(ps.PERIOD_7)
 		b7.connect("clicked", self.range_modify, 7, schedule_, tasks_)
+		self.rbuttons[7] = b7
 		b14 = gtk.Button(ps.PERIOD_14)
 		b14.connect("clicked", self.range_modify, 14, schedule_, tasks_)
+		self.rbuttons[14] = b14
 
 		# paging buttons
 		bn = gtk.Button(stock=gtk.STOCK_GO_FORWARD)
@@ -112,6 +116,7 @@ class Psyched(gtk.Window) :
 		# read range of days and populate tabs
 		self.range = self.backend.setting_get(pb.SETTING_RANGE)
 		self.populate_tabs(schedule_, tasks_, False)
+		self.rbuttons[self.range].set_state(gtk.STATE_ACTIVE)
 
 		# schedule repopulation at midngith
 		self.timer = BackgroundTimer()
@@ -144,9 +149,11 @@ class Psyched(gtk.Window) :
 		self.populate_tabs(s, t, True)
 		self.set_calendar(self.begin)
 
-	def range_modify(self, w, r, s, t) :
+	def range_modify(self, b, r, s, t) :
+		self.rbuttons[self.range].set_state(gtk.STATE_NORMAL)
 		self.backend.setting_set(pb.SETTING_RANGE, r)
 		self.range = r
+		self.rbuttons[self.range].set_state(gtk.STATE_ACTIVE)
 		self.backend.action_complete()
 		self.populate_tabs(s, t, True)
 

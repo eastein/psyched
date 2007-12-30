@@ -1,0 +1,19 @@
+Psyched is a simple, fast scheduling application for planning your life.
+It is task and appointment based, with operations for adding,
+modifying, deleting and rescheduling both tasks and appointments.
+
+Dependencies
+-------------------
+
+Before using Psyched you will want to have the following packages
+installed on your system.
+
+	python
+	pygtk
+	pysqlite
+
+Files
+-------------------
+
+Psyched stores data in ~/.psyched/psyched.db.  No other files are
+written on disk during normal program operation.

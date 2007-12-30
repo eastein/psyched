@@ -1,20 +1,17 @@
-Psyched is a simple, fast scheduling application for planning your life.
-It is task and appointment based, with operations for adding,
-modifying, deleting and rescheduling both tasks and appointments.
-
 Design Tenets
 	100% keystroke accessible
 	Simplest action simplest to complete
 	Good visual cues
 
 Repeats
-	Types
+	Repeat Types
 		n weekly
-		n week of month
 		n daily
+
+		n week of month
 		n day of month
 
-	Parameters
+	Repeat Parameters
 		type
 		n
 		description
@@ -23,6 +20,8 @@ Repeats
 		first date
 		not after date
 
+	Options
+
 	add individual records
 		pro
 			simplified conflicts
@@ -30,12 +29,19 @@ Repeats
 			conflicts with other repeating events can produce
 			  a very large number of conflicts
 			cancellation of single events simpler
+			impossible to modify schedule reliably
 
 	format describing repeating method
 		pro
 			conflict detection with other repeating events a bit simpler
 		con
 			conflict detection with normal events difficult
+
++	Both, with format used to create/delete on change
+		pro
+			best of both worlds
+		con
+			more complex
 
 Done	Feature
 
