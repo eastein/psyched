@@ -419,7 +419,7 @@ class Psyched(gtk.Window) :
 	def create_task(self, date=None) :
 		calmods = []
 		if date != None :
-			self.create_calmod(date)
+			calmods = self.create_calmod(date)
 
 		v = self.input_dialog(ps.NEWTASK,
 			[
