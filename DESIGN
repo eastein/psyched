@@ -54,8 +54,9 @@ x	change displayed date
 x	delete items
 x	paging
 x	reschedule with calendar
-	recurring items
-	time conflicts
 
 Release 1
+	recurring items
+	time conflicts
 	annotate (add or edit notes on a task for item)
+	drag and drop reschedule
