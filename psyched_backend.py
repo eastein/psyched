@@ -68,6 +68,7 @@ class PsychedBackend :
 			self.create_tables()
 			self.initial_settings()
 			self.conn.commit()
+		assert (self.setting_get(SETTING_DATAVERSION) <= 1)
 
 #--------------------- INITIALIZATION
 	def create_tables(self) :

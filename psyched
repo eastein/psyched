@@ -392,13 +392,13 @@ class Psyched(gtk.Window) :
 
 		v = self.input_dialog(ps.RESCHEDULE,
 			[
-			(gtk.Calendar, ps.DUEDATE, None, calmods),
-			(gtk.Entry, ps.DUETIME, pv.check_time, tmods)])
+			(gtk.Calendar, ps.DATE, None, calmods),
+			(gtk.Entry, ps.TIME, pv.check_time, tmods)])
 
 		if v != None :
 			# get date and time
-			(y, mo, d) = v[ps.DUEDATE]
-			(h, mi) = self.s2loi(v[ps.DUETIME])
+			(y, mo, d) = v[ps.DATE]
+			(h, mi) = self.s2loi(v[ps.TIME])
 
 			# create unix timestamp
 			ts = time.mktime((y, mo + 1, d, h, mi, 0, 0, 0, -1))
