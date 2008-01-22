@@ -54,10 +54,11 @@ x	change displayed date
 x	delete items
 x	paging
 x	reschedule with calendar
+	drag and drop reschedule
 
 Release 1
 	recurring items
+	alerts of impending deadlines/events
 	time conflicts
 	annotate (add or edit notes on a task for item)
-	drag and drop reschedule
 	more user friendly error reporting when the datafile is too new for this version

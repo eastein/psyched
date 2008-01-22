@@ -50,7 +50,7 @@ class Psyched(gtk.Window) :
 
 		# set up window
 		self.set_title(ps.PROGRAM)
-		self.set_default_size(600,800)
+		self.set_default_size(500,700)
 		self.set_border_width(0)
 
 		# box panels for schedule and tasks
