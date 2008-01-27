@@ -1,0 +1,9 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Psyched
+Comment=Plan your schedule and tasks.
+Exec=psyched
+terminal=false
+Type=Application
+Icon=psyched
+Categories=Applicatin;Office;

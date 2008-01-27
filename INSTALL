@@ -1,0 +1,23 @@
+# INSTALL
+# How to install Psyched
+
+You can run Psyched directly from this folder:
+
+	./psyched
+
+If you wish to install psyched for more than one user, or you
+need to run psyched without being in the psyched directory,
+build & install psyched:
+
+	make
+	sudo make install
+
+Unless your distribution changed the paths where components of
+Psyched are installed, psyched should install these files:
+
+/usr/bin/psyched
+/usr/lib/psyched/psyched_backend.py
+/usr/lib/psyched/psyched_strings.py
+/usr/lib/psyched/psyched_validate.py
+/usr/share/applications/psyched.desktop
+/usr/share/pixmaps/psyched.png

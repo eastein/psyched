@@ -8,11 +8,18 @@ License: GPL2/GPL3, at your option.  For details see LICENSE.
 $Id$
 '''
 
+import sys
+import os
 import gtk
 import gobject
 import time
 import datetime
 import threading
+
+# the following line is rewritten by the makefile.
+# before making changes consider the effects.
+#SYSPATH#
+
 import psyched_validate as pv
 import psyched_backend as pb
 import psyched_strings as ps
@@ -38,11 +45,15 @@ cont = True
 
 class Psyched(gtk.Window) :
 	def __init__(self, parent=None) :
+		# the following line is rewritten by the makefile.
+		# before making changes consider the effects.
+		iconpath = os.path.join(os.path.realpath(os.curdir), 'share')
+
 		self.day = datetime.timedelta(days=1)
 		self.begin = datetime.date.today()
 		self.backend = pb.PsychedBackend()
-
-		support = {'icon' : '/home/eastein/dev/psyched/resources/psyched.png'}
+		
+		support = {'icon' : os.path.join(iconpath, 'psyched.png')}
 
 		# create window
 		gtk.Window.__init__(self)
