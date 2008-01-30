@@ -54,9 +54,9 @@ x	change displayed date
 x	delete items
 x	paging
 x	reschedule with calendar
-	drag and drop reschedule
 
 Release 1
+	drag and drop reschedule
 	recurring items
 	alerts of impending deadlines/events
 	time conflicts
