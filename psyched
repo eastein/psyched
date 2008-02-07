@@ -235,6 +235,9 @@ class Psyched(gtk.Window) :
 		if type == gtk.Entry :
 			return gtk.Entry.get_text
 
+	def submit_dialog(self, b, dialog) :
+		dialog.response(gtk.RESPONSE_OK)
+
 	def input_dialog(self, title, fields) :
 		d = gtk.Dialog(title, self, gtk.DIALOG_MODAL,
 			(gtk.STOCK_OK, gtk.RESPONSE_OK,
@@ -259,6 +262,8 @@ class Psyched(gtk.Window) :
 			table.attach(label, 0, 1, row, row + 1)
 
 			f = type()
+			if type == gtk.Entry :
+				f.connect('activate', self.submit_dialog, d)
 			for i in init :
 				i(f)
 
@@ -396,15 +401,18 @@ class Psyched(gtk.Window) :
 		(model, iter) = t
 		id = model.get_value(iter, SCOLUMN_ID)
 		t = self.backend.get_sched_ts(id)
+		d = self.backend.get_sched_duration(id)
 
 		od = pb.ts2dt(t)
 		calmods = self.create_calmod(od)
 		tmods = [lambda e: e.set_text(pb.tod(t))]
+		dmods = [lambda e: e.set_text(pb.sec2dur(d))]
 
 		v = self.input_dialog(ps.RESCHEDULE,
 			[
 			(gtk.Calendar, ps.DATE, None, calmods),
-			(gtk.Entry, ps.TIME, pv.check_time, tmods)])
+			(gtk.Entry, ps.TIME, pv.check_time, tmods),
+			(gtk.Entry, ps.DURATION, pv.check_interval, dmods)])
 
 		if v != None :
 			# get date and time
@@ -414,13 +422,18 @@ class Psyched(gtk.Window) :
 			# create unix timestamp
 			ts = time.mktime((y, mo + 1, d, h, mi, 0, 0, 0, -1))
 
+			# get duration
+			duration = self.dur2sec(self.s2loi(v[ps.DURATION]))
+
 			# commit to database
 			self.backend.set_sched_ts(id, ts)
+			self.backend.set_sched_duration(id, duration)
 			self.backend.action_complete()
 
-			# same day, modityf row
+			# same day, modify row
 			if od == (y, mo + 1, d) :
 				model.set(iter, SCOLUMN_TS_, pb.tod(ts))
+				model.set(iter, SCOLUMN_DURATION_, pb.sec2dur(duration))
 			# different day, move row
 			else :
 				model.remove(iter)

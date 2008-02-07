@@ -119,6 +119,9 @@ class PsychedBackend :
 	def get_sched_ts(self, id) :
 		return fupack(self.cursor.execute('select ts from sched where id=?', (id, )).fetchall()[0])
 
+	def get_sched_duration(self, id) :
+		return fupack(self.cursor.execute('select duration from sched where id=?', (id, )).fetchall()[0])
+
 	def get_task_due(self, id) :
 		return fupack(self.cursor.execute('select due from task where id=?', (id, )).fetchall()[0])
 
