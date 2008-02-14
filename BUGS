@@ -1,2 +1,8 @@
 #1
 description field grows infinitely widthwise instead of using multiple lines in place.
+exists as of 0.1.0
+
+#2
+lists of tasks and schedule items go blank seemingly randomly
+exists as of 0.1.0
+possible fix in r80

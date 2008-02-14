@@ -1,4 +1,4 @@
-# Copyright 2007 Eric Stein
+# Copyright 2007-2008 Eric Stein
 # Makefile License: GPL2
 # Some parts of makefile copied from Meld, a graphical diff tool.
 #
@@ -16,7 +16,7 @@ psyched.install: psyched
 	sed -e "s%iconpath =.*$%%iconpath = '$(DESTDIR)$(sharedir)/pixmaps'%" psyched.tmp > psyched.install
 	rm -f psyched.tmp
 
-install: share/psyched.png psyched.desktop psyched.install psyched_backend.py psyched_strings.py psyched_validate.py
+install: share/psyched.png psyched.desktop psyched.install psyched_backend.py psyched_strings.py psyched_validate.py queue.py
 	mkdir -m 755 -p \
 		$(DESTDIR)$(bindir) \
 		$(DESTDIR)$(libdir_) \

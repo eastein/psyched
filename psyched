@@ -2,7 +2,7 @@
 '''
 Psyched is a scheduling and task management application.
 
-Copyright 2007 Eric Stein
+Copyright 2007-2008 Eric Stein
 License: GPL2/GPL3, at your option.  For details see LICENSE.
 
 $Id$
@@ -132,7 +132,8 @@ class Psyched(gtk.Window) :
 		# schedule repopulation at midngith
 		self.timer = BackgroundTimer()
 		self.timer.start()
-		self.timer.add_callback('d', lambda: self.populate_tabs(schedule_, tasks_, True))
+#		self.timer.add_callback('d', lambda: self.populate_tabs(schedule_, tasks_, True))
+#		self.timer.add_callback('m', lambda: self.dialog("whoa"))
 
 		# icons
 		self.shown = True
@@ -161,12 +162,13 @@ class Psyched(gtk.Window) :
 		self.set_calendar(self.begin)
 
 	def range_modify(self, b, r, s, t) :
-		self.rbuttons[self.range].set_state(gtk.STATE_NORMAL)
-		self.backend.setting_set(pb.SETTING_RANGE, r)
-		self.range = r
+		if self.range != r :
+			self.rbuttons[self.range].set_state(gtk.STATE_NORMAL)
+			self.backend.setting_set(pb.SETTING_RANGE, r)
+			self.range = r
+			self.backend.action_complete()
+			self.populate_tabs(s, t, True)
 		self.rbuttons[self.range].set_state(gtk.STATE_ACTIVE)
-		self.backend.action_complete()
-		self.populate_tabs(s, t, True)
 
 	def icon_click(self, i) :
 		self.shown = not self.shown
