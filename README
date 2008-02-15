@@ -11,6 +11,7 @@ installed on your system.
 	python
 	pygtk
 	pysqlite
+	notify-python
 
 Files
 -------------------
