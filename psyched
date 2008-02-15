@@ -20,6 +20,7 @@ import threading
 # before making changes consider the effects.
 #SYSPATH#
 
+import psyched_notify as pn
 import psyched_validate as pv
 import psyched_backend as pb
 import psyched_strings as ps
@@ -132,6 +133,8 @@ class Psyched(gtk.Window) :
 		# schedule repopulation at midngith
 		self.timer = BackgroundTimer()
 		self.timer.start()
+
+		self.notifier = pn.PyNotifier("Psyched")
 #		self.timer.add_callback('d', lambda: self.populate_tabs(schedule_, tasks_, True))
 #		self.timer.add_callback('m', lambda: self.dialog("whoa"))
 
