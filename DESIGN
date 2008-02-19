@@ -59,9 +59,10 @@ Release 0.1.1
 x	Enter forms using enter key not just alt+o or tab+enter
 	drag and drop reschedule
 	alerts of impending deadlines/events
-		settings
-		how much ahead of time?
-		what kind of popup?
+	better looking date labels
+
+Release 0.1.2
+	Settings dialog
 
 Release 0.2.0
 	recurring items
