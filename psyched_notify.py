@@ -12,7 +12,7 @@ import gtk
 import gtk.gdk
 
 class Notifier :
-	def notify(self, string) :
+	def notify(self, title, string) :
 		return
 
 class PyNotifier (Notifier) :
@@ -21,8 +21,8 @@ class PyNotifier (Notifier) :
 		self.expire = pynotify.EXPIRES_NEVER
 		pynotify.init(app)
 
-	def notify(self, string) :
-		p = pynotify.Notification(string)
+	def notify(self, title, string) :
+		p = pynotify.Notification(title, string)
 		p.set_timeout(self.expire)
 		p.show()
 
@@ -31,7 +31,7 @@ class PopNotifier (Notifier) :
 		self.app = app
 		self.win = window
 
-	def notify(self, string) :
+	def notify(self, title, string) :
 		dialog = gtk.MessageDialog(self.win,
 			gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
 			gtk.MESSAGE_INFO, gtk.BUTTONS_OK, string)
