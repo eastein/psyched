@@ -57,12 +57,12 @@ x	reschedule with calendar
 
 Release 0.1.1
 x	Enter forms using enter key not just alt+o or tab+enter
-	drag and drop reschedule
 x	alerts of impending deadlines/events
-	better looking date labels
 
 Release 0.1.2
 	Settings dialog
+	better looking date labels
+	drag and drop reschedule
 
 Release 0.2.0
 	recurring items
