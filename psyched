@@ -176,7 +176,6 @@ class Psyched(gtk.Window) :
 			for s in sched :
 				(t1, desc, ts, t2, t3, t4) = s
 				items.append(' ' + desc)
-				print s
 		if items != [] :
 			self.notifier.notify(title, '\n'.join(items))
 
