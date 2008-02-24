@@ -159,23 +159,31 @@ class Psyched(gtk.Window) :
 
 		title = pb.tod(t)
 		items = []
+
+		tasks = map(lambda (t1, desc, t2, d): (desc, d), tasks)
+		sched = map(lambda (t1, desc, t2, t3, d, t4): (desc, d), sched)
+
+		f = lambda (desc, d): d == 0
+		tasks = filter(f, tasks)
+		sched = filter(f, sched)
+
 		if tasks != [] :
 			if len(tasks) == 1 :
 				items.append('Task:')
 			else :
 				items.append('Tasks:')
 			for t in tasks :
-				(t1, desc, ts, d) = t
-				if d == 0 :
-					items.append(' ' + desc)
+				(desc, d) = t
+				items.append(' ' + desc)
 		if sched != [] :
 			if len(sched) == 1 :
 				items.append('Appointment:')
 			else :
 				items.append('Appointments:')
 			for s in sched :
-				(t1, desc, ts, t2, t3, t4) = s
+				(desc, d) = s
 				items.append(' ' + desc)
+
 		if items != [] :
 			self.notifier.notify(title, '\n'.join(items))
 
