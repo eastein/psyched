@@ -216,7 +216,9 @@ class Psyched(gtk.Window) :
 		if self.shown :
 			self.unmaximize()
 			self.show_all()
+			self.move(self.x, self.y)
 		else :
+			(self.x, self.y) = self.get_position()
 			self.hide()
 			gtk.gdk.flush()
 
