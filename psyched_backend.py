@@ -14,12 +14,18 @@ import pysqlite2.dbapi2 as sqlite
 
 (
 	SETTING_DATAVERSION,
-	SETTING_RANGE
-) = range(2)
+	SETTING_RANGE,
+	SETTING_POSITION_STORE,
+	SETTING_POSITION_X,
+	SETTING_POSITION_Y
+) = range(5)
 
 types = {
 	SETTING_DATAVERSION : int,
-	SETTING_RANGE : int
+	SETTING_RANGE : int,
+	SETTING_POSITION_STORE : bool,
+	SETTING_POSITION_X : int,
+	SETTING_POSITION_Y : int
 	}
 
 def utime() :
@@ -166,17 +172,19 @@ class PsychedBackend :
 	def setting_get(self, id) :
 		'''Get a setting
 	
-		If the setting exists, it is returned as a unicode string.
-		If it does not exist, returns None
+		If the setting exists, it is returned as the correct type.
+		If the setting is not known by this file, it will raise a RuntimeError.
+		If it is not set, returns None
 		'''
 		s = self.cursor.execute('select setting from settings where id=?', (id,)).fetchall()
 		if len(s) == 0 :
 			return None
 		elif len(s) == 1 :
 			(r, ) = s[0]
-			if types[id] == int :
-				return int(r)
-			return r
+			if types.has_key(id) :
+				return types[id](r)
+			else :
+				raise RuntimeError, 'Setting has unknown type.  Cannot read.'
 		else :
 			raise RuntimeError, 'Multiple instances of one setting: ' + str(id)
 
