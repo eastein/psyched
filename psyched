@@ -734,8 +734,6 @@ class Psyched(gtk.Window) :
 			self.backend.set_sched_text(id, new_text)
 		elif column == SCOLUMN_TS_ :
 			if (pv.check_time(new_text)) :
-				update = new_text
-
 				ts = self.backend.get_sched_ts(id)
 
 				(y, m, d, h, mi, s, a, b, t) = time.localtime(ts)
@@ -743,12 +741,13 @@ class Psyched(gtk.Window) :
 				tsn = time.mktime((y, m, d, hn, mn, 0, a, b, -1))
 
 				self.backend.set_sched_ts(id, tsn)
+				update = pb.tod(tsn)
+
 		elif column == SCOLUMN_DURATION_ :
 			if (pv.check_interval(new_text)) :
-				update = new_text
-
 				d = self.dur2sec(self.s2loi(new_text))
 				self.backend.set_sched_duration(id, d)
+				update = pb.sec2dur(d)
 
 		self.backend.action_complete()
 				
@@ -769,8 +768,6 @@ class Psyched(gtk.Window) :
 			self.backend.set_task_text(id, new_text)
 		elif column == TCOLUMN_DUE_ :
 			if (pv.check_time(new_text)) :
-				update = new_text
-
 				ts = self.backend.get_task_due(id)
 
 				(y, m, d, h, mi, s, a, b, t) = time.localtime(ts)
@@ -778,6 +775,7 @@ class Psyched(gtk.Window) :
 				tsn = time.mktime((y, m, d, hn, mn, 0, a, b, -1))
 
 				self.backend.set_task_due(id, tsn)
+				update = pb.tod(tsn)
 
 		self.backend.action_complete()
 				
