@@ -68,13 +68,11 @@ class PsychedBackend :
 		# check tables, create if needed
 		try:
 			i = self.cursor.execute('select count(*) from settings')
-			i = self.cursor.execute('select count(*) from task')
-			i = self.cursor.execute('select count(*) from sched')
 		except sqlite.OperationalError:
 			self.create_tables()
 			self.initial_settings()
 			self.conn.commit()
-		assert (self.setting_get(SETTING_DATAVERSION) <= 1)
+		assert (self.update_dataversion(2) == True)
 
 #--------------------- INITIALIZATION
 	def create_tables(self) :
@@ -88,8 +86,33 @@ class PsychedBackend :
 	
 		Only use this function for initialization - not for resetting settings to default.
 		'''
-		self.setting_set(SETTING_DATAVERSION, 1)
+		self.setting_set(SETTING_DATAVERSION, 2)
 		self.setting_set(SETTING_RANGE, 7)
+		self.setting_set(SETTING_POSITION_STORE, True)
+		self.setting_set(SETTING_POSITION_X, 0)
+		self.setting_set(SETTING_POSITION_Y, 0)
+
+
+#--------------------- DATA FORMAT VERSIONS
+	def update_dataversion(self, rev) :
+		updict = {
+			2 : self.update_rev_2
+		}
+		crev = self.setting_get(SETTING_DATAVERSION)
+		if (crev < rev) :
+			for r in range(crev + 1, rev + 1) :
+				updict[r]()
+		elif (crev > rev) :
+			return False
+		self.setting_set(SETTING_DATAVERSION, rev)
+		return True
+	
+	#update functions should not edit SETTING_DATAVERSION
+	def update_rev_2(self) :
+		self.setting_set(SETTING_POSITION_STORE, True)
+		self.setting_set(SETTING_POSITION_X, 0)
+		self.setting_set(SETTING_POSITION_Y, 0)
+		return True
 
 #--------------------- TRANSACTION SAFETY
 	def action_complete(self) :
@@ -206,7 +229,6 @@ class PsychedBackend :
 	
 		If the setting is set already, it is overwritten.
 		'''
-		data = str(data)
 		s = self.cursor.execute('select id from settings where id=?', (id,)).fetchall()
 		if len(s) == 0 :
 			self.cursor.execute('insert into settings (id, setting) values (?, ?)', (id, data))
