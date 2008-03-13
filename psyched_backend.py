@@ -17,15 +17,19 @@ import pysqlite2.dbapi2 as sqlite
 	SETTING_RANGE,
 	SETTING_POSITION_STORE,
 	SETTING_POSITION_X,
-	SETTING_POSITION_Y
-) = range(5)
+	SETTING_POSITION_Y,
+	SETTING_POSITION_XW,
+	SETTING_POSITION_YW
+) = range(7)
 
 types = {
 	SETTING_DATAVERSION : int,
 	SETTING_RANGE : int,
 	SETTING_POSITION_STORE : bool,
 	SETTING_POSITION_X : int,
-	SETTING_POSITION_Y : int
+	SETTING_POSITION_Y : int,
+	SETTING_POSITION_XW : int,
+	SETTING_POSITION_YW : int
 	}
 
 def utime() :
@@ -91,6 +95,8 @@ class PsychedBackend :
 		self.setting_set(SETTING_POSITION_STORE, True)
 		self.setting_set(SETTING_POSITION_X, 0)
 		self.setting_set(SETTING_POSITION_Y, 0)
+		self.setting_set(SETTING_POSITION_XW, 500)
+		self.setting_set(SETTING_POSITION_YW, 700)
 
 
 #--------------------- DATA FORMAT VERSIONS
@@ -112,6 +118,8 @@ class PsychedBackend :
 		self.setting_set(SETTING_POSITION_STORE, True)
 		self.setting_set(SETTING_POSITION_X, 0)
 		self.setting_set(SETTING_POSITION_Y, 0)
+		self.setting_set(SETTING_POSITION_XW, 500)
+		self.setting_set(SETTING_POSITION_YW, 700)
 		return True
 
 #--------------------- TRANSACTION SAFETY
