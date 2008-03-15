@@ -63,7 +63,7 @@ Release 0.1.2
 x	Screen memory
 x		while hidden
 x		while closed (opt)
-	Settings dialog
+x	Settings dialog
 x	better looking date labels
 	drag and drop reschedule
 

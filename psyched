@@ -96,15 +96,12 @@ class Psyched(gtk.Window) :
 		bn.connect("clicked", self.date_page_forward, schedule_, tasks_)
 		bb = gtk.Button(stock=gtk.STOCK_GO_BACK)
 		bb.connect("clicked", self.date_page_back, schedule_, tasks_)
-		bc = gtk.Button(ps.CONFIG)
-		bc.connect("clicked", self.edit_configuration)
 
 		rangeh.pack_start(b3, expand=False)
 		rangeh.pack_start(b7, expand=False)
 		rangeh.pack_start(b14, expand=False)
 		rangeh.pack_start(bb, expand=False)
 		rangeh.pack_start(bn, expand=False)
-		rangeh.pack_start(bc, expand=False)
 
 		# create tab gui
 		schedule = gtk.ScrolledWindow()
@@ -151,7 +148,10 @@ class Psyched(gtk.Window) :
 		self.icon = gtk.status_icon_new_from_file(support['icon'])
 		gtk.window_set_default_icon_from_file(support['icon'])
 		self.icon.set_tooltip(ps.PROGRAM)
+
+		# hide/show window on click
 		self.icon.connect('activate', self.icon_click)
+		self.icon.connect('popup-menu', self.icon_right_click)
 
 		self.persist = self.backend.setting_get(pb.SETTING_POSITION_STORE)
 		if self.persist :
@@ -201,7 +201,6 @@ class Psyched(gtk.Window) :
 
 	def edit_configuration(self, b) :
 		pers_up = [lambda c: c.set_active(self.persist)]
-		print self.persist
 		v = self.input_dialog(ps.CONFIG,
 			[
 			(gtk.CheckButton, ps.SETTING_PERS, None, pers_up),
@@ -245,6 +244,18 @@ class Psyched(gtk.Window) :
 			self.hide()
 			gtk.gdk.flush()
 
+	def icon_right_click(self, icon, event_button, event_time) :
+		menu = gtk.Menu()
+		item = gtk.MenuItem(ps.CONFIG)
+		item.connect("activate", self.edit_configuration)
+		item.show()
+		item2 = gtk.MenuItem(ps.QUIT)
+		item2.connect("activate", lambda z: self.shutdown())
+		item2.show()
+		menu.append(item)
+		menu.append(item2)
+		menu.popup(None, None, gtk.status_icon_position_menu, event_button, event_time, icon)
+
 	def restore_position(self) :
 		self.x = self.backend.setting_get(pb.SETTING_POSITION_X)
 		self.y = self.backend.setting_get(pb.SETTING_POSITION_Y)
@@ -253,6 +264,10 @@ class Psyched(gtk.Window) :
 
 	def normalize_position(self) :
 		self.move(self.x, self.y)
+
+	def shutdown(self) :
+		self.window_move(0,0)
+		self.__die__()
 
 	def __die__(self, parent=None) :
 		global cont
