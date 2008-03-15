@@ -60,9 +60,9 @@ x	Enter forms using enter key not just alt+o or tab+enter
 x	alerts of impending deadlines/events
 
 Release 0.1.2
-	Screen memory
+x	Screen memory
 x		while hidden
-		while closed (opt)
+x		while closed (opt)
 	Settings dialog
 x	better looking date labels
 	drag and drop reschedule
