@@ -65,6 +65,8 @@ x		while hidden
 x		while closed (opt)
 x	Settings dialog
 x	better looking date labels
+
+Release 0.1.3
 	drag and drop reschedule
 
 Release 0.2.0

@@ -181,17 +181,17 @@ class Psyched(gtk.Window) :
 
 		if tasks != [] :
 			if len(tasks) == 1 :
-				items.append('Task:')
+				items.append(ps.T_S + ':')
 			else :
-				items.append('Tasks:')
+				items.append(ps.T_P + ':')
 			for t in tasks :
 				(desc, d) = t
 				items.append(' ' + desc)
 		if sched != [] :
 			if len(sched) == 1 :
-				items.append('Appointment:')
+				items.append(ps.A_S + ':')
 			else :
-				items.append('Appointments:')
+				items.append(ps.A_P + ':')
 			for s in sched :
 				(desc, d) = s
 				items.append(' ' + desc)
