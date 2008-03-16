@@ -340,6 +340,15 @@ class Psyched(gtk.Window) :
 		if type == gtk.CheckButton :
 			return gtk.CheckButton.get_active
 
+	def response_dialog(self, title, text, buttons) :
+		d = gtk.Dialog(title, self, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, ())
+		d.vbox.add(gtk.Label(text))
+		for (s, t, r) in buttons :
+			d.add_action_widget(button_factory(t, s), r)
+		d.set_has_separator(False)
+		d.show_all()
+		return d.run()
+
 	def submit_dialog(self, b, dialog) :
 		dialog.response(gtk.RESPONSE_OK)
 
@@ -893,6 +902,11 @@ class BackgroundTimer(threading.Thread) :
 
 	def add_callback(self, period, callback) :
 		self.callbacks[period].append(callback)
+
+def button_factory(label, stock) :
+	b = gtk.Button(lablel)
+	b.set_image(gtk.image_new_from_stock(stock, gtk.ICON_SIZE_BUTTON))
+	return b
 
 def gtkm() :
 	global cont
