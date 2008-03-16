@@ -246,10 +246,10 @@ class Psyched(gtk.Window) :
 
 	def icon_right_click(self, icon, event_button, event_time) :
 		menu = gtk.Menu()
-		item = gtk.MenuItem(ps.CONFIG)
+		item = gtk.ImageMenuItem(stock_id=gtk.STOCK_PREFERENCES)
 		item.connect("activate", self.edit_configuration)
 		item.show()
-		item2 = gtk.MenuItem(ps.QUIT)
+		item2 = gtk.ImageMenuItem(stock_id=gtk.STOCK_QUIT)
 		item2.connect("activate", lambda z: self.shutdown())
 		item2.show()
 		menu.append(item)
