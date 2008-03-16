@@ -1,5 +1,4 @@
-Design Tenets
-	100% keystroke accessible
+Design Tenets	100% keystroke accessible
 	Simplest action simplest to complete
 	Good visual cues
 
@@ -67,10 +66,16 @@ x	Settings dialog
 x	better looking date labels
 
 Release 0.1.3
-	drag and drop reschedule
+	time conflicts
+
+Release 0.1.4
+	Clean up UI
 
 Release 0.2.0
+	drag and drop reschedule
+	keybindings for everything
 	recurring items
-	time conflicts
+
+Release 0.2.1
 	annotate (add or edit notes on a task for item)
 	more user friendly error reporting when the datafile is too new for this version

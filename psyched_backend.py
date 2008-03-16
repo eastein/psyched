@@ -76,7 +76,7 @@ class PsychedBackend :
 			self.create_tables()
 			self.initial_settings()
 			self.conn.commit()
-		assert (self.update_dataversion(2) == True)
+		assert (self.update_dataversion(3) == True)
 
 #--------------------- INITIALIZATION
 	def create_tables(self) :
@@ -84,6 +84,7 @@ class PsychedBackend :
 		self.cursor.execute('create table settings (id integer primary key, setting blob)')
 		self.cursor.execute('create table task (id integer primary key autoincrement, text blob, due integer null, complete integer)')
 		self.cursor.execute('create table sched (id integer primary key autoincrement, text blob, ts integer, duration integer, complete integer, task integer key)')
+		self.cursor.execute('create index sched_duration on sched(duration)')
 
 	def initial_settings(self) :
 		'''Default settings
@@ -102,7 +103,8 @@ class PsychedBackend :
 #--------------------- DATA FORMAT VERSIONS
 	def update_dataversion(self, rev) :
 		updict = {
-			2 : self.update_rev_2
+			2 : self.update_rev_2,
+			3 : self.update_rev_3
 		}
 		crev = self.setting_get(SETTING_DATAVERSION)
 		if (crev < rev) :
@@ -122,9 +124,15 @@ class PsychedBackend :
 		self.setting_set(SETTING_POSITION_YW, 700)
 		return True
 
+	def update_rev_3(self) :
+		self.cursor.execute('create index sched_duration on sched(duration)')
+
 #--------------------- TRANSACTION SAFETY
 	def action_complete(self) :
 		self.conn.commit()
+	
+	def action_undo(self) :
+		self.conn.rollback()
 
 
 #--------------------- SETTERS
@@ -198,6 +206,12 @@ class PsychedBackend :
 
 	def fetch_schedule(self, timestamp, range) :
 		return self.cursor.execute('select id,text,ts,duration,complete,task from sched where ts>=? and ts<=?', (timestamp, timestamp + range)).fetchall()
+
+	def fetch_schedule_overlap(self, timestamp, range) :
+		(ml, ) = self.cursor.execute('select max(duration) from sched').fetchall()[0]
+		start = timestamp - ml
+		end = timestamp + range
+		return self.cursor.execute('select id,text,ts,duration,complete,task from (select * from sched where ts>? and ts<?) where ts>=? or ts+duration>?', (start, end, timestamp, timestamp)).fetchall()
 
 #--------------------- SETTINGS
 	def setting_get(self, id) :
