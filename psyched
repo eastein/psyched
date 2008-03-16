@@ -343,11 +343,18 @@ class Psyched(gtk.Window) :
 	def response_dialog(self, title, text, buttons) :
 		d = gtk.Dialog(title, self, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, ())
 		d.vbox.add(gtk.Label(text))
-		for (s, t, r) in buttons :
-			d.add_action_widget(button_factory(t, s), r)
+		for tp in buttons :
+			if len(tp) == 3 :
+				(s, t, r) = tp
+				d.add_action_widget(button_factory(t, s), r)
+			elif len(tp) == 2 :
+				(s, r) = tp
+				d.add_action_widget(gtk.Button(stock=s), r)
 		d.set_has_separator(False)
 		d.show_all()
-		return d.run()
+		r = d.run()
+		d.destroy()
+		return r
 
 	def submit_dialog(self, b, dialog) :
 		dialog.response(gtk.RESPONSE_OK)
@@ -678,6 +685,18 @@ class Psyched(gtk.Window) :
 			# convert duration to seconds
 			duration = self.dur2sec(self.s2loi(v[ps.DURATION]))
 
+			conflicts = self.backend.fetch_schedule_overlap(ts, duration)
+
+			if len(conflicts) > 0 :
+				msg = ps.CONFLICT_T + '\n'
+				for (id, text, ts, dur) in conflicts :
+					msg += '\n' + text
+				rsp = self.response_dialog(ps.CONFLICT, msg, [(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL), (gtk.STOCK_GO_FORWARD, ps.CONTINUE, gtk.RESPONSE_OK)])
+				if rsp == gtk.RESPONSE_CANCEL :
+					return
+				elif rsp != gtk.RESPONSE_OK :
+					raise RuntimeError, 'Unknown response code in create_sched()'
+
 			# fetch description
 			text = v[ps.DESCRIPTION]
 
@@ -904,7 +923,7 @@ class BackgroundTimer(threading.Thread) :
 		self.callbacks[period].append(callback)
 
 def button_factory(label, stock) :
-	b = gtk.Button(lablel)
+	b = gtk.Button(label)
 	b.set_image(gtk.image_new_from_stock(stock, gtk.ICON_SIZE_BUTTON))
 	return b
 

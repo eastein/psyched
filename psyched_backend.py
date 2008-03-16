@@ -211,7 +211,7 @@ class PsychedBackend :
 		(ml, ) = self.cursor.execute('select max(duration) from sched').fetchall()[0]
 		start = timestamp - ml
 		end = timestamp + range
-		return self.cursor.execute('select id,text,ts,duration,complete,task from (select * from sched where ts>? and ts<?) where ts>=? or ts+duration>?', (start, end, timestamp, timestamp)).fetchall()
+		return self.cursor.execute('select id,text,ts,duration from (select * from sched where ts>? and ts<?) where ts>=? or ts+duration>?', (start, end, timestamp, timestamp)).fetchall()
 
 #--------------------- SETTINGS
 	def setting_get(self, id) :
