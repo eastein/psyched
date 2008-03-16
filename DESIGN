@@ -67,9 +67,11 @@ x	better looking date labels
 
 Release 0.1.3
 	time conflicts
-
-Release 0.1.4
-	Clean up UI
+x		on addition
+		on edit in place
+		on -> reschedule
+	clean up UI
+	add notification settings
 
 Release 0.2.0
 	drag and drop reschedule
