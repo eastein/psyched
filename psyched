@@ -305,7 +305,7 @@ class Psyched(gtk.Window) :
 			lset = gtk.HBox()
 			dlab = gtk.Label()
 			dlab.set_use_markup(True)
-			dlab.set_label('<span size="large" weight="ultrabold">' + day.isoformat().replace('-','/') + '</span>')
+			dlab.set_label('<span size="large" weight="ultrabold">' + day.strftime('%A') + ', ' + day.isoformat().replace('-','/') + '</span>')
 			dlab.show()
 			lset.pack_start(dlab)
 			if create != None :
