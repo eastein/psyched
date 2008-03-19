@@ -550,15 +550,8 @@ class Psyched(gtk.Window) :
 
 			conflicts = filter((lambda (a,b,c,d): a != id), conflicts)
 
-			if len(conflicts) > 0 :
-				msg = ps.CONFLICT_T_R + '\n'
-				for (id_, text, ts_, dur) in conflicts :
-					msg += '\n' + text
-				rsp = self.response_dialog(ps.CONFLICT, msg, [(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL), (gtk.STOCK_GO_FORWARD, ps.CONTINUE, gtk.RESPONSE_OK)])
-				if rsp == gtk.RESPONSE_CANCEL :
-					return
-				elif rsp != gtk.RESPONSE_OK :
-					raise RuntimeError, 'Unknown response code in create_sched()'
+			if not self.conflict_dialog(conflicts, ps.CONFLICT_T_R) :
+				return
 
 			# commit to database
 			self.backend.set_sched_ts(id, ts)
@@ -701,15 +694,8 @@ class Psyched(gtk.Window) :
 
 			conflicts = self.backend.fetch_schedule_overlap(ts, duration)
 
-			if len(conflicts) > 0 :
-				msg = ps.CONFLICT_T + '\n'
-				for (id, text, ts, dur) in conflicts :
-					msg += '\n' + text
-				rsp = self.response_dialog(ps.CONFLICT, msg, [(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL), (gtk.STOCK_GO_FORWARD, ps.CONTINUE, gtk.RESPONSE_OK)])
-				if rsp == gtk.RESPONSE_CANCEL :
-					return
-				elif rsp != gtk.RESPONSE_OK :
-					raise RuntimeError, 'Unknown response code in create_sched()'
+			if not self.conflict_dialog(conflicts, ps.CONFLICT_T) :
+				return
 
 			# fetch description
 			text = v[ps.DESCRIPTION]
@@ -884,6 +870,19 @@ class Psyched(gtk.Window) :
 		else :
 			model.set(iter, column, update)
 
+	def conflict_dialog(self, conflicts, text) :
+		if len(conflicts) > 0 :
+			msg = text + '\n'
+			for (id_, body, ts_, dur) in conflicts :
+				msg += '\n' + body
+			rsp = self.response_dialog(ps.CONFLICT, msg, [(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL), (gtk.STOCK_GO_FORWARD, ps.CONTINUE, gtk.RESPONSE_OK)])
+			if rsp == gtk.RESPONSE_CANCEL :
+				return False
+			elif rsp == gtk.RESPONSE_OK :
+				return True
+			raise RuntimeError, 'Unknown response code in conflict_dialog()'
+		else :
+			return True
 
 class BackgroundTimer(threading.Thread) :
 	def __init__(self) :
