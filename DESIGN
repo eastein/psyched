@@ -69,7 +69,7 @@ Release 0.1.3
 	time conflicts
 x		on addition
 		on edit in place
-		on -> reschedule
+x		on -> reschedule
 	clean up UI
 	add notification settings
 

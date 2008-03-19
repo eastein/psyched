@@ -546,6 +546,20 @@ class Psyched(gtk.Window) :
 			# get duration
 			duration = self.dur2sec(self.s2loi(v[ps.DURATION]))
 
+			conflicts = self.backend.fetch_schedule_overlap(ts, duration)
+
+			conflicts = filter((lambda (a,b,c,d): a != id), conflicts)
+
+			if len(conflicts) > 0 :
+				msg = ps.CONFLICT_T_R + '\n'
+				for (id_, text, ts_, dur) in conflicts :
+					msg += '\n' + text
+				rsp = self.response_dialog(ps.CONFLICT, msg, [(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL), (gtk.STOCK_GO_FORWARD, ps.CONTINUE, gtk.RESPONSE_OK)])
+				if rsp == gtk.RESPONSE_CANCEL :
+					return
+				elif rsp != gtk.RESPONSE_OK :
+					raise RuntimeError, 'Unknown response code in create_sched()'
+
 			# commit to database
 			self.backend.set_sched_ts(id, ts)
 			self.backend.set_sched_duration(id, duration)
