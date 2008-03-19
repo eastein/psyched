@@ -5,4 +5,8 @@ exists as of 0.1.0
 #2
 lists of tasks and schedule items go blank seemingly randomly
 exists as of 0.1.0
-possible fix in r80
+fixed as of r80
+
+#3
+when the clock changes signifigantly notifications produce strange behaviour
+exists as of 0.1.2
