@@ -547,7 +547,6 @@ class Psyched(gtk.Window) :
 			duration = self.dur2sec(self.s2loi(v[ps.DURATION]))
 
 			conflicts = self.backend.fetch_schedule_overlap(ts, duration)
-
 			conflicts = filter((lambda (a,b,c,d): a != id), conflicts)
 
 			if not self.conflict_dialog(conflicts, ps.CONFLICT_T_R) :
@@ -818,20 +817,36 @@ class Psyched(gtk.Window) :
 		if column == SCOLUMN_TEXT :
 			update = new_text
 			self.backend.set_sched_text(id, new_text)
+
 		elif column == SCOLUMN_TS_ :
 			if (pv.check_time(new_text)) :
 				ts = self.backend.get_sched_ts(id)
+				duration = self.backend.get_sched_duration(id)
 
 				(y, m, d, h, mi, s, a, b, t) = time.localtime(ts)
 				(hn, mn) = self.s2loi(new_text)
 				tsn = time.mktime((y, m, d, hn, mn, 0, a, b, -1))
+
+				conflicts = self.backend.fetch_schedule_overlap(tsn, duration)
+				conflicts = filter((lambda (a,b,c,d): a != id), conflicts)
+
+				if not self.conflict_dialog(conflicts, ps.CONFLICT_T_R) :
+					return
 
 				self.backend.set_sched_ts(id, tsn)
 				update = pb.tod(tsn)
 
 		elif column == SCOLUMN_DURATION_ :
 			if (pv.check_interval(new_text)) :
+				ts = self.backend.get_sched_ts(id)
 				d = self.dur2sec(self.s2loi(new_text))
+
+				conflicts = self.backend.fetch_schedule_overlap(ts, d)
+				conflicts = filter((lambda (a,b,c,d_): a != id), conflicts)
+
+				if not self.conflict_dialog(conflicts, ps.CONFLICT_T_R) :
+					return
+
 				self.backend.set_sched_duration(id, d)
 				update = pb.sec2dur(d)
 
@@ -880,6 +895,8 @@ class Psyched(gtk.Window) :
 				return False
 			elif rsp == gtk.RESPONSE_OK :
 				return True
+			elif rsp == gtk.RESPONSE_DELETE_EVENT :
+				return False
 			raise RuntimeError, 'Unknown response code in conflict_dialog()'
 		else :
 			return True
