@@ -19,7 +19,11 @@ import pysqlite2.dbapi2 as sqlite
 	SETTING_POSITION_X,
 	SETTING_POSITION_Y,
 	SETTING_POSITION_XW,
-	SETTING_POSITION_YW
+	SETTING_POSITION_YW,
+	SETTING_NOTIFY_TASK,
+	SETTING_NOTIFY_SCHED,
+	SETTING_NOTIFY_TASK_ADVANCE,
+	SETTING_NOTIFY_SCHED_ADVANCE
 ) = range(7)
 
 types = {
@@ -29,7 +33,11 @@ types = {
 	SETTING_POSITION_X : int,
 	SETTING_POSITION_Y : int,
 	SETTING_POSITION_XW : int,
-	SETTING_POSITION_YW : int
+	SETTING_POSITION_YW : int,
+	SETTING_NOTIFY_TASK : bool,
+	SETTING_NOTIFY_SCHED : bool,
+	SETTING_NOTIFY_TASK_ADVANCE : int,
+	SETTING_NOTIFY_SCHED_ADVANCE : int
 	}
 
 def utime() :
@@ -76,7 +84,7 @@ class PsychedBackend :
 			self.create_tables()
 			self.initial_settings()
 			self.conn.commit()
-		assert (self.update_dataversion(3) == True)
+		assert (self.update_dataversion(4) == True)
 
 #--------------------- INITIALIZATION
 	def create_tables(self) :
@@ -91,20 +99,25 @@ class PsychedBackend :
 	
 		Only use this function for initialization - not for resetting settings to default.
 		'''
-		self.setting_set(SETTING_DATAVERSION, 2)
+		self.setting_set(SETTING_DATAVERSION, 4)
 		self.setting_set(SETTING_RANGE, 7)
 		self.setting_set(SETTING_POSITION_STORE, True)
 		self.setting_set(SETTING_POSITION_X, 0)
 		self.setting_set(SETTING_POSITION_Y, 0)
 		self.setting_set(SETTING_POSITION_XW, 500)
 		self.setting_set(SETTING_POSITION_YW, 700)
+		self.setting_set(SETTING_NOTIFY_TASK, True)
+		self.setting_set(SETTING_NOTIFY_SCHED, True)
+		self.setting_set(SETTING_NOTIFY_TASK_ADVANCE, 0)
+		self.setting_set(SETTING_NOTIFY_SCHED_ADVANCE, 0)
 
 
 #--------------------- DATA FORMAT VERSIONS
 	def update_dataversion(self, rev) :
 		updict = {
 			2 : self.update_rev_2,
-			3 : self.update_rev_3
+			3 : self.update_rev_3,
+			4 : self.update_rev_4
 		}
 		crev = self.setting_get(SETTING_DATAVERSION)
 		if (crev < rev) :
@@ -126,6 +139,12 @@ class PsychedBackend :
 
 	def update_rev_3(self) :
 		self.cursor.execute('create index sched_duration on sched(duration)')
+	
+	def update_rev_4(self) :
+		self.setting_set(SETTING_NOTIFY_TASK, True)
+		self.setting_set(SETTING_NOTIFY_SCHED, True)
+		self.setting_set(SETTING_NOTIFY_TASK_ADVANCE, 0)
+		self.setting_set(SETTING_NOTIFY_SCHED_ADVANCE, 0)
 
 #--------------------- TRANSACTION SAFETY
 	def action_complete(self) :
