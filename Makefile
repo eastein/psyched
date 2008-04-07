@@ -16,7 +16,7 @@ psyched.install: psyched
 	sed -e "s%iconpath =.*$%%iconpath = '$(DESTDIR)$(sharedir)/pixmaps'%" psyched.tmp > psyched.install
 	rm -f psyched.tmp
 
-install: share/psyched.png psyched.desktop psyched.install psyched_backend.py psyched_strings.py psyched_validate.py queue.py psyched_notify.py
+install: share/psyched.png psyched.desktop psyched.install psyched_backend.py psyched_strings.py psyched_validate.py psyched_notify.py
 	mkdir -m 755 -p \
 		$(DESTDIR)$(bindir) \
 		$(DESTDIR)$(libdir_) \
