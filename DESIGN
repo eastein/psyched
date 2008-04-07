@@ -70,8 +70,13 @@ x	time conflicts
 x		on addition
 x		on edit in place
 x		on -> reschedule
-	clean up UI
 	add notification settings
+	prevent double alerts
+
+Release 0.1.4
+	add unscheduled tasks
+	clean up UI
+		prevent selections remaining active
 
 Release 0.2.0
 	drag and drop reschedule
