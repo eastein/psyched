@@ -24,7 +24,7 @@ import pysqlite2.dbapi2 as sqlite
 	SETTING_NOTIFY_SCHED,
 	SETTING_NOTIFY_TASK_ADVANCE,
 	SETTING_NOTIFY_SCHED_ADVANCE
-) = range(7)
+) = range(11)
 
 types = {
 	SETTING_DATAVERSION : int,
