@@ -74,6 +74,7 @@ x		on -> reschedule
 	prevent double alerts
 	make add buttons small & uniform
 	left justify dates
+	add about dialog
 
 Release 0.1.4
 	add unscheduled tasks
