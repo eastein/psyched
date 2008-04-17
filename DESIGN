@@ -72,6 +72,8 @@ x		on edit in place
 x		on -> reschedule
 	add notification settings
 	prevent double alerts
+	make add buttons small & uniform
+	left justify dates
 
 Release 0.1.4
 	add unscheduled tasks
