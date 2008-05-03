@@ -8,11 +8,21 @@ Dependencies
 Before using Psyched you will want to have the following packages
 installed on your system.
 
+Gentoo
+--------
 	python
 	pygtk
 	pysqlite
 	notify-python
 	pyxml
+
+Ubuntu
+--------
+	python
+	python-gtk
+	python-pysqlite2
+	python-notify
+	python-xml
 
 Files
 -------------------
