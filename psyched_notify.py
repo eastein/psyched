@@ -10,6 +10,7 @@ $Id$
 import pynotify
 import gtk
 import gtk.gdk
+import xml.sax.saxutils
 
 class Notifier :
 	def notify(self, title, string) :
@@ -22,7 +23,7 @@ class PyNotifier (Notifier) :
 		pynotify.init(app)
 
 	def notify(self, title, string) :
-		p = pynotify.Notification(title, string)
+		p = pynotify.Notification(title, xml.sax.saxutils.escape(string))
 		p.set_timeout(self.expire)
 		p.show()
 

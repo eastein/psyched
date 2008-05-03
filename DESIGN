@@ -79,6 +79,7 @@ x		on -> reschedule
 Release 0.1.4
 	add unscheduled tasks
 	clean up UI
+		close notifications when the task/event is checked off
 		prevent selections remaining active
 
 Release 0.2.0
