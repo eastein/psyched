@@ -206,10 +206,11 @@ class Psyched(gtk.Window) :
 			self.notifier.notify(title, '\n'.join(items))
 
 	def edit_configuration(self, b) :
+		tda = gtk.Adjustment(value=self.notify_td, lower=0, upper=60, step_incr=1, page_incr=5, page_size=10)
 		pers_up = [lambda c: c.set_active(self.persist)]
 		set_t = [lambda c: c.set_active(self.notify_t)]
 		set_s = [lambda c: c.set_active(self.notify_s)]
-		set_td = [lambda c: c.set_value(self.notify_td)]
+		set_td = [lambda c: c.set_adjustment(tda)]
 		set_sd = [lambda c: c.set_value(self.notify_sd)]
 		sb_opt = [
 			lambda c: c.set_numeric(True),

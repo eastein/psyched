@@ -74,7 +74,6 @@ x		on -> reschedule
 	prevent double alerts
 	make add buttons small & uniform
 	left justify dates
-	add about dialog
 
 Release 0.1.4
 	add unscheduled tasks
@@ -84,6 +83,7 @@ Release 0.1.4
 
 Release 0.2.0
 	drag and drop reschedule
+	add about dialog
 	keybindings for everything
 	recurring items
 
