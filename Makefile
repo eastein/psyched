@@ -9,23 +9,22 @@ bindir := $(prefix)/bin
 libdir := $(prefix)/lib
 sharedir := $(prefix)/share
 libdir_ := $(libdir)/psyched
-helpdir_ := $(helpdir)/psyched
 
 psyched.install: psyched
-	sed -e "s^#SYSPATH#^sys.path += ['$(DESTDIR)$(libdir_)']^" psyched > psyched.tmp
-	sed -e "s%iconpath =.*$%%iconpath = '$(DESTDIR)$(sharedir)/pixmaps'%" psyched.tmp > psyched.install
+	sed -e "s^#SYSPATH#^sys.path += ['$(libdir_)']^" psyched > psyched.tmp
+	sed -e "s%iconpath =.*$%%iconpath = '$(sharedir)/pixmaps'%" psyched.tmp > psyched.install
 	rm -f psyched.tmp
 
 install: share/psyched.png psyched.desktop psyched.install psyched_backend.py psyched_strings.py psyched_validate.py psyched_notify.py
 	mkdir -m 755 -p \
-		$(DESTDIR)$(bindir) \
-		$(DESTDIR)$(libdir_) \
-		$(DESTDIR)$(sharedir)/applications \
-		$(DESTDIR)$(sharedir)/pixmaps
-	install -m 755 psyched.install $(DESTDIR)$(bindir)/psyched
-	install -m 644 *.py $(DESTDIR)$(libdir_)
-	install -m 644 share/psyched.png $(DESTDIR)$(sharedir)/pixmaps
-	install -m 644 psyched.desktop $(DESTDIR)$(sharedir)/applications
+		$(bindir) \
+		$(libdir_) \
+		$(sharedir)/applications \
+		$(sharedir)/pixmaps
+	install -m 755 psyched.install $(bindir)/psyched
+	install -m 644 *.py $(libdir_)
+	install -m 644 share/psyched.png $(sharedir)/pixmaps
+	install -m 644 psyched.desktop $(sharedir)/applications
 
 uninstall:
 	-rm -rf \
