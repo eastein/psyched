@@ -172,8 +172,13 @@ class Psyched(gtk.Window) :
 			self.notify_backend = pb.PsychedBackend()
 		t = pb.utime()
 
-		tasks = self.notify_backend.fetch_dated_tasks(t, 59)
-		sched = self.notify_backend.fetch_schedule(t, 59)
+		tasks = []
+		if self.notify_t :
+			tasks = self.notify_backend.fetch_dated_tasks(t, 59)
+
+		sched = []
+		if self.notify_s :
+			sched = self.notify_backend.fetch_schedule(t, 59)
 
 		title = pb.tod(t)
 		items = []
