@@ -207,11 +207,12 @@ class Psyched(gtk.Window) :
 
 	def edit_configuration(self, b) :
 		tda = gtk.Adjustment(value=self.notify_td, lower=0, upper=60, step_incr=1, page_incr=5, page_size=10)
+		sda = gtk.Adjustment(value=self.notify_td, lower=0, upper=60, step_incr=1, page_incr=5, page_size=10)
 		pers_up = [lambda c: c.set_active(self.persist)]
 		set_t = [lambda c: c.set_active(self.notify_t)]
 		set_s = [lambda c: c.set_active(self.notify_s)]
 		set_td = [lambda c: c.set_adjustment(tda)]
-		set_sd = [lambda c: c.set_value(self.notify_sd)]
+		set_sd = [lambda c: c.set_adjustment(sda)]
 		sb_opt = [
 			lambda c: c.set_numeric(True),
 			lambda c: c.configure(None, 1, 0),
@@ -225,7 +226,9 @@ class Psyched(gtk.Window) :
 			[
 			(gtk.CheckButton, ps.SETTING_PERS, None, pers_up),
 			(gtk.CheckButton, ps.SETTING_NT, None, set_t),
-			(gtk.SpinButton, ps.SETTING_NTD, None, set_td)
+			(gtk.SpinButton, ps.SETTING_NTD, None, set_td),
+			(gtk.CheckButton, ps.SETTING_NS, None, set_s),
+			(gtk.SpinButton, ps.SETTING_NSD, None, set_sd)
 			])
 		if v != None :
 			print v
