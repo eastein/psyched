@@ -12,6 +12,7 @@ import sys
 import time
 import pysqlite2.dbapi2 as sqlite
 
+NUM_SETTINGS = 11
 (
 	SETTING_DATAVERSION,
 	SETTING_RANGE,
@@ -24,7 +25,7 @@ import pysqlite2.dbapi2 as sqlite
 	SETTING_NOTIFY_SCHED,
 	SETTING_NOTIFY_TASK_ADVANCE,
 	SETTING_NOTIFY_SCHED_ADVANCE
-) = range(11)
+) = range(NUM_SETTINGS)
 
 types = {
 	SETTING_DATAVERSION : int,
@@ -228,8 +229,6 @@ class PsychedBackend :
 
 	def fetch_schedule_overlap(self, timestamp, range) :
 		(ml, ) = self.cursor.execute('select max(duration) from sched').fetchall()[0]
-		if ml == None :
-			return []
 		start = timestamp - ml
 		end = timestamp + range
 		return self.cursor.execute('select id,text,ts,duration from (select * from sched where ts>? and ts<?) where ts>=? or ts+duration>?', (start, end, timestamp, timestamp)).fetchall()
