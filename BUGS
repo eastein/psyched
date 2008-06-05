@@ -15,3 +15,7 @@ exists as of 0.1.2
 irregularly, alerts for tasks show up as blank.
 exists as of r116
 fixed as of r118
+
+#5
+if a dialog is open, alerts do not occur.
+exists as of r126
