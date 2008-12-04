@@ -87,14 +87,23 @@ class Psyched(gtk.Window) :
 		rangeh.set_layout(gtk.BUTTONBOX_START)
 
 		self.rbuttons = {}
+
 		b3 = gtk.Button(ps.PERIOD_3)
 		b3.connect("clicked", self.range_modify, 3, schedule_, tasks_)
+		b3.connect("enter", self.set_buttonlooks)
+		b3.connect("leave", self.set_buttonlooks)
 		self.rbuttons[3] = b3
+
 		b7 = gtk.Button(ps.PERIOD_7)
 		b7.connect("clicked", self.range_modify, 7, schedule_, tasks_)
+		b7.connect("enter", self.set_buttonlooks)
+		b7.connect("leave", self.set_buttonlooks)
 		self.rbuttons[7] = b7
+
 		b14 = gtk.Button(ps.PERIOD_14)
 		b14.connect("clicked", self.range_modify, 14, schedule_, tasks_)
+		b14.connect("enter", self.set_buttonlooks)
+		b14.connect("leave", self.set_buttonlooks)
 		self.rbuttons[14] = b14
 
 		# paging buttons
@@ -139,7 +148,7 @@ class Psyched(gtk.Window) :
 		# read range of days and populate tabs
 		self.range = self.backend.setting_get(pb.SETTING_RANGE)
 		self.populate_tabs(schedule_, tasks_, False)
-		self.rbuttons[self.range].set_state(gtk.STATE_ACTIVE)
+		self.rbuttons[self.range].set_state(gtk.STATE_SELECTED)
 
 		# schedule repopulation at midngith
 		self.timer = BackgroundTimer()
@@ -174,11 +183,11 @@ class Psyched(gtk.Window) :
 
 		tasks = []
 		if self.notify_t :
-			tasks = self.notify_backend.fetch_dated_tasks(t, 59)
+			tasks = self.notify_backend.fetch_dated_tasks(t + self.notify_td * 60, 59)
 
 		sched = []
 		if self.notify_s :
-			sched = self.notify_backend.fetch_schedule(t, 59)
+			sched = self.notify_backend.fetch_schedule(t + self.notify_sd * 60, 59)
 
 		title = pb.tod(t)
 		items = []
@@ -269,7 +278,14 @@ class Psyched(gtk.Window) :
 			self.range = r
 			self.backend.action_complete()
 			self.populate_tabs(s, t, True)
-		self.rbuttons[self.range].set_state(gtk.STATE_ACTIVE)
+		self.rbuttons[self.range].set_state(gtk.STATE_SELECTED)
+
+	def set_buttonlooks(self, b) :
+		for r in self.rbuttons.keys() :
+			if self.range == r :
+				self.rbuttons[r].set_state(gtk.STATE_SELECTED)
+			else :
+				self.rbuttons[r].set_state(gtk.STATE_NORMAL)
 
 	def icon_click(self, i) :
 		self.shown = not self.shown
