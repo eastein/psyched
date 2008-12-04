@@ -73,7 +73,8 @@ class PsychedBackend :
 	handles storage, querying, and changes.
 	'''
 	def __init__(self) :
-		os.chdir(self.get_directory())
+		d = self.get_directory()
+		os.chdir(d)
 		self.conn = sqlite.connect("psyched.db")
 		self.conn.text_factory = str
 		self.cursor = self.conn.cursor()
@@ -289,7 +290,7 @@ class PsychedBackend :
 		'''
 		dir = os.path.join(os.path.expanduser('~'), '.psyched')
 		try:
-			os.mkdir(dir)
+			os.mkdir(dir, 0700)
 		except Exception:
 			return dir
 		return dir
