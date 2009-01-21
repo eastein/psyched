@@ -7,7 +7,20 @@ License: GPL2/GPL3, at your option.  For details see LICENSE.
 $Id$
 '''
 
-import pynotify
+available = {}
+
+try :
+	import pynotify
+	available['pynotify'] = True
+except :
+	available['pynotify'] = False
+
+try :
+	import hildon
+	available['hildon'] = True
+except :
+	available['hildon'] = False
+
 import gtk
 import gtk.gdk
 import xml.sax.saxutils
@@ -26,6 +39,14 @@ class PyNotifier (Notifier) :
 		p = pynotify.Notification(title, xml.sax.saxutils.escape(string))
 		p.set_timeout(self.expire)
 		p.show()
+
+class HildonNotifier (Notifier) :
+	def __init__(self, app) :
+		self.app = app
+	
+	def notify(self, title, string) :
+		print 'alert! ' + string
+		hildon.hildon_banner_show_information(self.app, None, string)
 
 class PopNotifier (Notifier) :
 	def __init__(self, app, window) :
