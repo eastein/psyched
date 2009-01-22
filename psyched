@@ -68,7 +68,7 @@ class Psyched(toolkit.Window) :
 		support = {'icon' : os.path.join(iconpath, iname + '.png')}
 
 		# create window
-		gtk.Window.__init__(self)
+		toolkit.Window.__init__(self)
 		self.connect('destroy', self.__die__)
 		self.connect('delete-event', self.window_move)
 
