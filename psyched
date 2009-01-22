@@ -15,6 +15,10 @@ import gobject
 import time
 import datetime
 import threading
+try :
+	import hildon
+except :
+	t = 1
 
 # the following line is rewritten by the makefile.
 # before making changes consider the effects.
@@ -43,8 +47,12 @@ import psyched_strings as ps
 ) = range(5)
 
 cont = True
+nokia = len(sys.argv) > 1 and sys.argv[1] == 'hildon'
+toolkit = gtk
+if nokia :
+	toolkit = hildon
 
-class Psyched(gtk.Window) :
+class Psyched(toolkit.Window) :
 	def __init__(self, parent=None) :
 		# the following line is rewritten by the makefile.
 		# before making changes consider the effects.
@@ -53,8 +61,11 @@ class Psyched(gtk.Window) :
 		self.day = datetime.timedelta(days=1)
 		self.begin = datetime.date.today()
 		self.backend = pb.PsychedBackend()
-		
-		support = {'icon' : os.path.join(iconpath, 'psyched.png')}
+
+		iname = 'psyched'
+		if nokia :
+			iname += '-nokia'		
+		support = {'icon' : os.path.join(iconpath, iname + '.png')}
 
 		# create window
 		gtk.Window.__init__(self)
@@ -163,7 +174,12 @@ class Psyched(gtk.Window) :
 		self.timer.start()
 
 		self.notify_backend = None
-		self.notifier = pn.PyNotifier("Psyched")
+		# choose a notification system
+		if nokia :
+			self.notifier = pn.HildonNotifier(self)
+		else :
+			self.notifier = pn.PyNotifier("Psyched")
+
 		self.timer.add_callback('m', self.show_notifications)
 
 		# icons
