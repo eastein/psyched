@@ -410,7 +410,7 @@ class Psyched(toolkit.Window) :
 				abutton = gtk.Button(stock=gtk.STOCK_ADD)
 				abutton.connect("clicked", lambda t, d: create(d), (day.year, day.month, day.day))
 				abutton.show()
-				lset.pack_start(abutton, expand=False)
+				lset.pack_end(abutton, fill=False, expand=False)
 			r.append(lset)
 			(t, d) = self.getperiod(self.begin + self.day * i)
 
