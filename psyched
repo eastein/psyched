@@ -129,6 +129,7 @@ class Psyched(toolkit.Window) :
 		self.csb.set_image(gtk.image_new_from_stock(gtk.STOCK_GO_UP, gtk.ICON_SIZE_BUTTON))
 		self.csb.connect("clicked", self.calendar_toggle)
 
+		rangeh.set_homogeneous(True)
 		rangeh.pack_start(b3, expand=False)
 		rangeh.pack_start(b7, expand=False)
 		rangeh.pack_start(b14, expand=False)
@@ -290,10 +291,12 @@ class Psyched(toolkit.Window) :
 			self.mainvbox.pack_start(self.tabset, expand=True)
 			self.csb.set_label(ps.HIDECAL)
 			self.csb.set_image(gtk.image_new_from_stock(gtk.STOCK_GO_UP, gtk.ICON_SIZE_BUTTON))
+			self.unfullscreen()
 		else :
 			self.mainvbox.remove(self.cal)
 			self.csb.set_label(ps.SHOWCAL)
 			self.csb.set_image(gtk.image_new_from_stock(gtk.STOCK_GO_DOWN, gtk.ICON_SIZE_BUTTON))
+			self.fullscreen()
 
 	def date_modify(self, cal, s, t) :
 		(y, m, d) = cal.get_date()
@@ -396,16 +399,18 @@ class Psyched(toolkit.Window) :
 		for i in range(days) :
 			day = self.begin + self.day * i
 			lset = gtk.HBox()
+			#lset.set_homogeneous(True)
 			dlab = gtk.Label()
 			dlab.set_use_markup(True)
 			dlab.set_label('<span size="large" weight="ultrabold">' + day.strftime('%A') + ', ' + day.isoformat().replace('-','/') + '</span>')
 			dlab.show()
-			lset.pack_start(dlab)
+			dlab.set_justify(gtk.JUSTIFY_LEFT)
+			lset.pack_start(dlab, expand=False, fill=False)
 			if create != None :
 				abutton = gtk.Button(stock=gtk.STOCK_ADD)
 				abutton.connect("clicked", lambda t, d: create(d), (day.year, day.month, day.day))
 				abutton.show()
-				lset.pack_start(abutton)
+				lset.pack_start(abutton, expand=False)
 			r.append(lset)
 			(t, d) = self.getperiod(self.begin + self.day * i)
 
