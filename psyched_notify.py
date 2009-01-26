@@ -45,7 +45,6 @@ class HildonNotifier (Notifier) :
 		self.app = app
 	
 	def notify(self, title, string) :
-		print 'alert! ' + string
 		hildon.hildon_banner_show_information(self.app, None, string)
 
 class PopNotifier (Notifier) :
