@@ -71,6 +71,8 @@ class Psyched(toolkit.Window) :
 		toolkit.Window.__init__(self)
 		self.connect('destroy', self.__die__)
 		self.connect('delete-event', self.window_move)
+		self.connect('key-press-event', self.window_key)		
+		self.window_in_fullscreen = False
 
 		# check for persistence
 		self.persist = self.backend.setting_get(pb.SETTING_POSITION_STORE)
@@ -291,12 +293,10 @@ class Psyched(toolkit.Window) :
 			self.mainvbox.pack_start(self.tabset, expand=True)
 			self.csb.set_label(ps.HIDECAL)
 			self.csb.set_image(gtk.image_new_from_stock(gtk.STOCK_GO_UP, gtk.ICON_SIZE_BUTTON))
-			self.unfullscreen()
 		else :
 			self.mainvbox.remove(self.cal)
 			self.csb.set_label(ps.SHOWCAL)
 			self.csb.set_image(gtk.image_new_from_stock(gtk.STOCK_GO_DOWN, gtk.ICON_SIZE_BUTTON))
-			self.fullscreen()
 
 	def date_modify(self, cal, s, t) :
 		(y, m, d) = cal.get_date()
@@ -369,6 +369,14 @@ class Psyched(toolkit.Window) :
 		global cont
 		cont = False
 
+	def window_key(self, widget, event) :
+		if event.keyval == gtk.keysyms.F6 :
+			if self.window_in_fullscreen :
+				self.unfullscreen()
+			else :
+				self.fullscreen()
+			self.window_in_fullscreen = not self.window_in_fullscreen
+			
 	def window_move(self, t1, t2) :
 		if self.persist :
 			(self.x, self.y) = self.get_position()
