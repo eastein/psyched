@@ -213,7 +213,7 @@ class PsychedBackend :
 		return self.cursor.execute('select id,text,due,complete from task where id=?', (id, )).fetchall()[0]
 
 	def fetch_dated_tasks(self, timestamp, range) :
-		return self.cursor.execute('select id,text,due,complete from task where due>=? and due<=?', (timestamp, timestamp + range)).fetchall()
+		return self.cursor.execute('select id,text,due,complete from task where due>=? and due<?', (timestamp, timestamp + range)).fetchall()
 
 	def fetch_undated_tasks(self) :
 		return self.cursor.execute('select id,text,due,complete from task where due isnull').fetchall()
@@ -226,7 +226,7 @@ class PsychedBackend :
 		return self.cursor.execute('select sched.id,sched.text,sched.ts,sched.duration,sched.complete,sched.task from sched,task where task.id=? and sched.task=task.id', (tid, )).fetchall()
 
 	def fetch_schedule(self, timestamp, range) :
-		return self.cursor.execute('select id,text,ts,duration,complete,task from sched where ts>=? and ts<=?', (timestamp, timestamp + range)).fetchall()
+		return self.cursor.execute('select id,text,ts,duration,complete,task from sched where ts>=? and ts<?', (timestamp, timestamp + range)).fetchall()
 
 	def fetch_schedule_overlap(self, timestamp, range) :
 		(ml, ) = self.cursor.execute('select max(duration) from sched').fetchall()[0]
