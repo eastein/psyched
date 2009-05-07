@@ -230,8 +230,12 @@ class PsychedBackend :
 
 	def fetch_schedule_overlap(self, timestamp, range) :
 		(ml, ) = self.cursor.execute('select max(duration) from sched').fetchall()[0]
-		start = timestamp - ml
-		end = timestamp + range
+		if ml == None :
+			start = 0
+			end = 0
+		else :
+			start = timestamp - ml
+			end = timestamp + range
 		return self.cursor.execute('select id,text,ts,duration from (select * from sched where ts>? and ts<?) where ts>=? or ts+duration>?', (start, end, timestamp, timestamp)).fetchall()
 
 #--------------------- SETTINGS
