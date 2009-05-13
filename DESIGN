@@ -78,10 +78,9 @@ Release 0.1.4
 	add unscheduled tasks
 	clean up UI
 		fix bug #1
-		make add buttons small & uniform
-		left justify dates
+x		make add buttons small & uniform
+x		left justify dates
 		close notifications when the task/event is checked off
-		prevent selections remaining active
 
 Release 0.2.0
 	drag and drop reschedule
