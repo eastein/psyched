@@ -20,6 +20,5 @@ Psyched are installed, psyched should install these files:
 /usr/lib/psyched/psyched_notify.py
 /usr/lib/psyched/psyched_strings.py
 /usr/lib/psyched/psyched_validate.py
-/usr/lib/psyched/queue.py
 /usr/share/applications/psyched.desktop
 /usr/share/pixmaps/psyched.png
