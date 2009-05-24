@@ -73,16 +73,21 @@ x		on -> reschedule
 x	add notification settings
 
 Release 0.1.4
-	fix bug #5
-	fix bug #3
-	add unscheduled tasks
-	clean up UI
-		fix bug #1
+x	fix bug: cannot create schedule items unless a schedule item already exists
+x	partial maemo support
+x	clean up UI
 x		make add buttons small & uniform
 x		left justify dates
+
+Release 0.1.5
+	fix bug #3
+	fix bug #5
+	UI work
+		fix bug #1
 		close notifications when the task/event is checked off
 
 Release 0.2.0
+	unscheduled tasks
 	drag and drop reschedule
 	add about dialog
 	keybindings for everything
