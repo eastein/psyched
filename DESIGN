@@ -80,6 +80,11 @@ x		make add buttons small & uniform
 x		left justify dates
 
 Release 0.1.5
+	completed maemo integration
+		left side icon
+		install in menus
+		backups
+		.deb
 	fix bug #3
 	fix bug #5
 	UI work
