@@ -19,3 +19,7 @@ fixed as of r118
 #5
 if a dialog is open, alerts do not occur.
 exists as of r126
+
+#6
+when changing timezones, displayed pages do not update
+automatically with new times
