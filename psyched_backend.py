@@ -86,7 +86,7 @@ class PsychedBackend :
 			self.create_tables()
 			self.initial_settings()
 			self.conn.commit()
-		assert (self.update_dataversion(4) == True)
+		assert (self.update_dataversion(5) == True)
 
 #--------------------- INITIALIZATION
 	def create_tables(self) :
