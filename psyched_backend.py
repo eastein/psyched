@@ -94,6 +94,8 @@ class PsychedBackend :
 		self.cursor.execute('create table settings (id integer primary key, setting blob)')
 		self.cursor.execute('create table task (id integer primary key autoincrement, text blob, due integer null, complete integer)')
 		self.cursor.execute('create table sched (id integer primary key autoincrement, text blob, ts integer, duration integer, complete integer, task integer key)')
+		self.cursor.execute('create index task_complete on task(complete)')
+		self.cursor.execute('create index sched_ts on sched(ts)')
 		self.cursor.execute('create index sched_duration on sched(duration)')
 
 	def initial_settings(self) :
@@ -101,7 +103,7 @@ class PsychedBackend :
 	
 		Only use this function for initialization - not for resetting settings to default.
 		'''
-		self.setting_set(SETTING_DATAVERSION, 4)
+		self.setting_set(SETTING_DATAVERSION, 5)
 		self.setting_set(SETTING_RANGE, 7)
 		self.setting_set(SETTING_POSITION_STORE, True)
 		self.setting_set(SETTING_POSITION_X, 0)
@@ -119,7 +121,8 @@ class PsychedBackend :
 		updict = {
 			2 : self.update_rev_2,
 			3 : self.update_rev_3,
-			4 : self.update_rev_4
+			4 : self.update_rev_4,
+			5 : self.update_rev_5
 		}
 		crev = self.setting_get(SETTING_DATAVERSION)
 		if (crev < rev) :
@@ -147,6 +150,10 @@ class PsychedBackend :
 		self.setting_set(SETTING_NOTIFY_SCHED, True)
 		self.setting_set(SETTING_NOTIFY_TASK_ADVANCE, 0)
 		self.setting_set(SETTING_NOTIFY_SCHED_ADVANCE, 0)
+
+	def update_rev_5(self) :
+		self.cursor.execute('create index task_complete on task(complete)')
+		self.cursor.execute('create index sched_ts on sched(ts)')
 
 #--------------------- TRANSACTION SAFETY
 	def action_complete(self) :
