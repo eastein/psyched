@@ -126,6 +126,10 @@ class Psyched(toolkit.Window) :
 		bb = gtk.Button(stock=gtk.STOCK_GO_BACK)
 		bb.connect("clicked", self.date_page_back, schedule_, tasks_)
 
+		# today button
+		bt = gtk.Button(ps.TODAY)
+		bt.connect("clicked", self.date_page_today, schedule_, tasks_)
+
 		self.showcalendar = True
 		self.csb = gtk.Button()
 		self.csb.set_label(ps.HIDECAL)
@@ -138,6 +142,7 @@ class Psyched(toolkit.Window) :
 		rangeh.pack_start(b14, expand=False)
 		rangeh.pack_start(bb, expand=False)
 		rangeh.pack_start(bn, expand=False)
+		rangeh.pack_start(bt, expand=False)
 		rangeh.pack_start(self.csb, expand=False)
 		self.controls = rangeh
 
@@ -311,6 +316,11 @@ class Psyched(toolkit.Window) :
 
 	def date_page_back(self, b, s, t) :
 		self.begin -= self.day * self.range
+		self.populate_tabs(s, t, True)
+		self.set_calendar(self.begin)
+
+	def date_page_today(self, b, s, t) :
+		self.begin = datetime.date.today()
 		self.populate_tabs(s, t, True)
 		self.set_calendar(self.begin)
 
