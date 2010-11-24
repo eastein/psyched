@@ -1,25 +1,34 @@
-#1
-description field grows infinitely widthwise instead of using multiple lines in place.
-exists as of 0.1.0
+FIXED
 
 #2
 lists of tasks and schedule items go blank seemingly randomly
 exists as of 0.1.0
 fixed as of r80
 
-#3
-when the clock changes signifigantly notifications produce strange behaviour
-exists as of 0.1.2
-
 #4
 irregularly, alerts for tasks show up as blank.
 exists as of r116
 fixed as of r118
+
+EXISTING
+
+#1
+description field grows infinitely widthwise instead of using multiple lines in place.
+exists as of 0.1.0
+
+#3
+when the clock changes signifigantly notifications produce strange behaviour
+exists as of 0.1.2
 
 #5
 if a dialog is open, alerts do not occur.
 exists as of r126
 
 #6
-when changing timezones, displayed pages do not update
-automatically with new times
+when changing timezones, displayed pages do not update automatically with new times
+exists as of 0.1.4
+
+#7
+when the timezone has changed and the pages haven't been redisplayed yet, new tasks won't
+show up on the page. This is probably the same for schedule.
+exists as of 0.1.4
