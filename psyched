@@ -129,10 +129,9 @@ class Psyched(toolkit.Window) :
 		bb = gtk.Button(stock=gtk.STOCK_GO_BACK)
 		bb.connect("clicked", self.date_page_back, self.schedule_vbox, self.tasks_vbox)
 
-		self.showcalendar = True
+		self.showcalendar = self.backend.setting_get(pb.SETTING_SHOW_CALENDAR)
 		self.csb = gtk.Button()
-		self.csb.set_label(ps.HIDECAL)
-		self.csb.set_image(gtk.image_new_from_stock(gtk.STOCK_GO_UP, gtk.ICON_SIZE_BUTTON))
+		self.calendar_button_setup()
 		self.csb.connect("clicked", self.calendar_toggle)
 
 		rangeh.set_homogeneous(True)
@@ -173,8 +172,9 @@ class Psyched(toolkit.Window) :
 
 		#build gui with both range buttons and tabset
 		self.mainvbox = gtk.VBox()
-		self.mainvbox.pack_start(self.cal, expand=False)
-		self.mainvbox.pack_start(rangeh, expand=False)
+		if self.showcalendar :
+			self.mainvbox.pack_start(self.cal, expand=False)
+		self.mainvbox.pack_start(self.controls, expand=False)
 		self.mainvbox.pack_start(self.tabset, expand=True)
 		self.add(self.mainvbox)
 
@@ -304,18 +304,25 @@ class Psyched(toolkit.Window) :
 
 	def calendar_toggle(self, a) :
 		self.showcalendar = not self.showcalendar
+		self.calendar_button_setup()
+		self.backend.setting_set(pb.SETTING_SHOW_CALENDAR, self.showcalendar)
 		if self.showcalendar :
 			self.mainvbox.remove(self.controls)
 			self.mainvbox.remove(self.tabset)
 			self.mainvbox.pack_start(self.cal, expand=False)
 			self.mainvbox.pack_start(self.controls, expand=False)
 			self.mainvbox.pack_start(self.tabset, expand=True)
+			self.cal.show()
+		else :
+			self.mainvbox.remove(self.cal)
+
+	def calendar_button_setup(self) :
+		if self.showcalendar :
 			self.csb.set_label(ps.HIDECAL)
 			self.csb.set_image(gtk.image_new_from_stock(gtk.STOCK_GO_UP, gtk.ICON_SIZE_BUTTON))
 		else :
-			self.mainvbox.remove(self.cal)
 			self.csb.set_label(ps.SHOWCAL)
-			self.csb.set_image(gtk.image_new_from_stock(gtk.STOCK_GO_DOWN, gtk.ICON_SIZE_BUTTON))
+			self.csb.set_image(gtk.image_new_from_stock(gtk.STOCK_GO_DOWN, gtk.ICON_SIZE_BUTTON))			
 
 	def date_modify(self, cal, s, t) :
 		(y, m, d) = cal.get_date()

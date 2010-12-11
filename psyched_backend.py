@@ -12,7 +12,7 @@ import sys
 import time
 import pysqlite2.dbapi2 as sqlite
 
-NUM_SETTINGS = 12
+NUM_SETTINGS = 13
 (
 	SETTING_DATAVERSION,
 	SETTING_RANGE,
@@ -25,7 +25,8 @@ NUM_SETTINGS = 12
 	SETTING_NOTIFY_SCHED,
 	SETTING_NOTIFY_TASK_ADVANCE,
 	SETTING_NOTIFY_SCHED_ADVANCE,
-	SETTING_SCT
+	SETTING_SCT,
+	SETTING_SHOW_CALENDAR
 ) = range(NUM_SETTINGS)
 
 types = {
@@ -40,7 +41,8 @@ types = {
 	SETTING_NOTIFY_SCHED : bool,
 	SETTING_NOTIFY_TASK_ADVANCE : int,
 	SETTING_NOTIFY_SCHED_ADVANCE : int,
-	SETTING_SCT : bool
+	SETTING_SCT : bool,
+	SETTING_SHOW_CALENDAR : bool
 	}
 
 def utime() :
@@ -88,7 +90,7 @@ class PsychedBackend :
 			self.create_tables()
 			self.initial_settings()
 			self.conn.commit()
-		assert (self.update_dataversion(6) == True)
+		assert (self.update_dataversion(7) == True)
 
 #--------------------- INITIALIZATION
 	def create_tables(self) :
@@ -126,7 +128,8 @@ class PsychedBackend :
 			3 : self.update_rev_3,
 			4 : self.update_rev_4,
 			5 : self.update_rev_5,
-			6 : self.update_rev_6
+			6 : self.update_rev_6,
+			7 : self.update_rev_7
 		}
 		crev = self.setting_get(SETTING_DATAVERSION)
 		if (crev < rev) :
@@ -164,6 +167,10 @@ class PsychedBackend :
 
 	def update_rev_6(self) :
 		self.setting_set(SETTING_SCT, True)
+		return True
+
+	def update_rev_7(self) :
+		self.setting_set(SETTING_SHOW_CALENDAR, True)
 		return True
 
 #--------------------- TRANSACTION SAFETY
