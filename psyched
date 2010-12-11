@@ -2,7 +2,7 @@
 '''
 Psyched is a scheduling and task management application.
 
-Copyright 2007-2008 Eric Stein
+Copyright 2007-2010 Eric Stein
 License: GPL2/GPL3, at your option.  For details see LICENSE.
 
 $Id$
@@ -85,16 +85,19 @@ class Psyched(toolkit.Window) :
 		self.notify_sd = self.backend.setting_get(pb.SETTING_NOTIFY_SCHED_ADVANCE)
 		self.notify_td = self.backend.setting_get(pb.SETTING_NOTIFY_TASK_ADVANCE)
 
+		# get show/hide completed task setting
+		self.sct = self.backend.setting_get(pb.SETTING_SCT)
+
 		# set up window
 		self.set_title(ps.PROGRAM)
 		self.set_default_size(self.xw, self.yw)
 		self.set_border_width(0)
 
 		# box panels for schedule and tasks
-		schedule_ = gtk.VBox(homogeneous=False, spacing=4)
-		schedule_.set_border_width(5)
-		tasks_ = gtk.VBox(homogeneous=False, spacing=4)
-		tasks_.set_border_width(5)
+		self.schedule_vbox = gtk.VBox(homogeneous=False, spacing=4)
+		self.schedule_vbox.set_border_width(5)
+		self.tasks_vbox = gtk.VBox(homogeneous=False, spacing=4)
+		self.tasks_vbox.set_border_width(5)
 
 		# range buttons
 		rangeh = gtk.HButtonBox()
@@ -103,28 +106,28 @@ class Psyched(toolkit.Window) :
 		self.rbuttons = {}
 
 		b3 = gtk.Button(ps.PERIOD_3)
-		b3.connect("clicked", self.range_modify, 3, schedule_, tasks_)
+		b3.connect("clicked", self.range_modify, 3, self.schedule_vbox, self.tasks_vbox)
 		b3.connect("enter", self.set_buttonlooks)
 		b3.connect("leave", self.set_buttonlooks)
 		self.rbuttons[3] = b3
 
 		b7 = gtk.Button(ps.PERIOD_7)
-		b7.connect("clicked", self.range_modify, 7, schedule_, tasks_)
+		b7.connect("clicked", self.range_modify, 7, self.schedule_vbox, self.tasks_vbox)
 		b7.connect("enter", self.set_buttonlooks)
 		b7.connect("leave", self.set_buttonlooks)
 		self.rbuttons[7] = b7
 
 		b14 = gtk.Button(ps.PERIOD_14)
-		b14.connect("clicked", self.range_modify, 14, schedule_, tasks_)
+		b14.connect("clicked", self.range_modify, 14, self.schedule_vbox, self.tasks_vbox)
 		b14.connect("enter", self.set_buttonlooks)
 		b14.connect("leave", self.set_buttonlooks)
 		self.rbuttons[14] = b14
 
 		# paging buttons
 		bn = gtk.Button(stock=gtk.STOCK_GO_FORWARD)
-		bn.connect("clicked", self.date_page_forward, schedule_, tasks_)
+		bn.connect("clicked", self.date_page_forward, self.schedule_vbox, self.tasks_vbox)
 		bb = gtk.Button(stock=gtk.STOCK_GO_BACK)
-		bb.connect("clicked", self.date_page_back, schedule_, tasks_)
+		bb.connect("clicked", self.date_page_back, self.schedule_vbox, self.tasks_vbox)
 
 		self.showcalendar = True
 		self.csb = gtk.Button()
@@ -139,6 +142,13 @@ class Psyched(toolkit.Window) :
 		rangeh.pack_start(bb, expand=False)
 		rangeh.pack_start(bn, expand=False)
 		rangeh.pack_start(self.csb, expand=False)
+
+		if nokia :
+			prefs_button = gtk.Button()
+			prefs_button.set_label(ps.PREFS)
+			prefs_button.connect("clicked", self.edit_configuration)
+			rangeh.pack_start(prefs_button, expand=False)
+
 		self.controls = rangeh
 
 		# create tab gui
@@ -147,8 +157,8 @@ class Psyched(toolkit.Window) :
 		tasks = gtk.ScrolledWindow()
 		tasks.set_policy(gtk.POLICY_NEVER, gtk.POLICY_ALWAYS)
 
-		schedule.add_with_viewport(schedule_)
-		tasks.add_with_viewport(tasks_)
+		schedule.add_with_viewport(self.schedule_vbox)
+		tasks.add_with_viewport(self.tasks_vbox)
 
 		slabel = gtk.Label(ps.SCHEDULE)
 		tlabel = gtk.Label(ps.TASKS)
@@ -159,7 +169,7 @@ class Psyched(toolkit.Window) :
 
 		# calendar day selection
 		self.cal = gtk.Calendar()
-		self.cal.connect('day-selected', self.date_modify, schedule_, tasks_)
+		self.cal.connect('day-selected', self.date_modify, self.schedule_vbox, self.tasks_vbox)
 
 		#build gui with both range buttons and tabset
 		self.mainvbox = gtk.VBox()
@@ -170,7 +180,7 @@ class Psyched(toolkit.Window) :
 
 		# read range of days and populate tabs
 		self.range = self.backend.setting_get(pb.SETTING_RANGE)
-		self.populate_tabs(schedule_, tasks_, False)
+		self.populate_tabs(self.schedule_vbox, self.tasks_vbox, False)
 		self.rbuttons[self.range].set_state(gtk.STATE_SELECTED)
 
 		# schedule repopulation at midngith
@@ -255,6 +265,7 @@ class Psyched(toolkit.Window) :
 		set_s = [lambda c: c.set_active(self.notify_s)]
 		set_td = [lambda c: c.set_adjustment(tda)]
 		set_sd = [lambda c: c.set_adjustment(sda)]
+		set_sct = [lambda c: c.set_active(self.sct)]
 		sb_opt = [
 			lambda c: c.set_numeric(True),
 			lambda c: c.configure(None, 1, 0),
@@ -270,19 +281,26 @@ class Psyched(toolkit.Window) :
 			(gtk.CheckButton, ps.SETTING_NT, None, set_t),
 			(gtk.SpinButton, ps.SETTING_NTD, None, set_td),
 			(gtk.CheckButton, ps.SETTING_NS, None, set_s),
-			(gtk.SpinButton, ps.SETTING_NSD, None, set_sd)
-			])
+			(gtk.SpinButton, ps.SETTING_NSD, None, set_sd),
+			(gtk.CheckButton, ps.SETTING_SCT, None, set_sct)
+			],
+			live_status=False)
 		if v != None :
 			self.persist = v[ps.SETTING_PERS]
 			self.notify_t = v[ps.SETTING_NT]
 			self.notify_td = v[ps.SETTING_NTD]
 			self.notify_s = v[ps.SETTING_NS]
 			self.notify_sd = v[ps.SETTING_NSD]
+			sct_changed = self.sct != v[ps.SETTING_SCT]
+			self.sct = v[ps.SETTING_SCT]
 			self.backend.setting_set(pb.SETTING_POSITION_STORE, self.persist)
 			self.backend.setting_set(pb.SETTING_NOTIFY_TASK, self.notify_t)
 			self.backend.setting_set(pb.SETTING_NOTIFY_TASK_ADVANCE, self.notify_td)
 			self.backend.setting_set(pb.SETTING_NOTIFY_SCHED, self.notify_s)
 			self.backend.setting_set(pb.SETTING_NOTIFY_SCHED_ADVANCE, self.notify_sd)
+			self.backend.setting_set(pb.SETTING_SCT, self.sct)
+			if sct_changed :
+				self.populate_tabs(self.schedule_vbox, self.tasks_vbox, True)
 
 	def calendar_toggle(self, a) :
 		self.showcalendar = not self.showcalendar
@@ -400,7 +418,7 @@ class Psyched(toolkit.Window) :
 		self.clear_vbox(tasks)
 		# fill boxes
 		self.add_items_to_vbox(sched, self.iterate_get(self.range, lambda t, d: self.create_list_sched(self.backend.fetch_schedule(t, d), t), (scols, SCOLUMN_EDITABLE), self.create_sched, self.on_s_toggled, self.on_s_edited, 'sched'), show)
-		self.add_items_to_vbox(tasks, self.iterate_get(self.range, lambda t, d: self.create_list_task(self.backend.fetch_dated_tasks(t, d), t), (tcols, TCOLUMN_EDITABLE), self.create_task, self.on_t_toggled, self.on_t_edited, 'task'), show)
+		self.add_items_to_vbox(tasks, self.iterate_get(self.range, lambda t, d: self.create_list_task(self.backend.fetch_dated_tasks(t, d, sct=self.sct), t), (tcols, TCOLUMN_EDITABLE), self.create_task, self.on_t_toggled, self.on_t_edited, 'task'), show)
 
 	def iterate_get(self, days, fetch, colargs, create, toggle, edit, kind) :
 		(l, e) = colargs
@@ -468,7 +486,7 @@ class Psyched(toolkit.Window) :
 	def submit_dialog(self, b, dialog) :
 		dialog.response(gtk.RESPONSE_OK)
 
-	def input_dialog(self, title, fields) :
+	def input_dialog(self, title, fields, live_status=True) :
 		d = gtk.Dialog(title, self, gtk.DIALOG_MODAL,
 			(gtk.STOCK_OK, gtk.RESPONSE_OK,
 			gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
@@ -478,10 +496,12 @@ class Psyched(toolkit.Window) :
 		table.set_row_spacings(4)
 		table.set_col_spacings(4)
 
-		# create status label
 		d.vbox.add(table)
-		status = gtk.Label("\n" + ps.OK)
-		d.vbox.add(status)
+		
+		if live_status :
+			# create status label for showing if preferences are currently valid
+			status = gtk.Label("\n" + ps.OK)
+			d.vbox.add(status)
 
 		row = 0
 		gui = []
@@ -523,7 +543,8 @@ class Psyched(toolkit.Window) :
 						v = valid(value)
 						if not v :
 							comp = False
-							status.set_text("\n" + name + ps.IMPROPER)
+							if live_status :
+								status.set_text("\n" + name + ps.IMPROPER)
 					# store value
 					r[name] = value
 
@@ -916,7 +937,11 @@ class Psyched(toolkit.Window) :
 			raise RuntimeError, 'Unknown toggle column: ' + str(column)
 
 		self.backend.action_complete()
-		model.set(iter, column, toggle_item)
+
+		if not self.sct and int(toggle_item) == 1 :
+			model.remove(iter)
+		else :
+			model.set(iter, column, toggle_item)
 
 	def on_s_edited(self, cell, path_string, new_text, model) :
 		iter = model.get_iter_from_string(path_string)

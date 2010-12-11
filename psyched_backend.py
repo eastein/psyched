@@ -1,7 +1,7 @@
 '''
 Psyched is a scheduling and task management application.
 
-Copyright 2007-2008 Eric Stein
+Copyright 2007-2010 Eric Stein
 License: GPL2/GPL3, at your option.  For details see LICENSE.
 
 $Id$
@@ -12,7 +12,7 @@ import sys
 import time
 import pysqlite2.dbapi2 as sqlite
 
-NUM_SETTINGS = 11
+NUM_SETTINGS = 12
 (
 	SETTING_DATAVERSION,
 	SETTING_RANGE,
@@ -24,7 +24,8 @@ NUM_SETTINGS = 11
 	SETTING_NOTIFY_TASK,
 	SETTING_NOTIFY_SCHED,
 	SETTING_NOTIFY_TASK_ADVANCE,
-	SETTING_NOTIFY_SCHED_ADVANCE
+	SETTING_NOTIFY_SCHED_ADVANCE,
+	SETTING_SCT
 ) = range(NUM_SETTINGS)
 
 types = {
@@ -38,7 +39,8 @@ types = {
 	SETTING_NOTIFY_TASK : bool,
 	SETTING_NOTIFY_SCHED : bool,
 	SETTING_NOTIFY_TASK_ADVANCE : int,
-	SETTING_NOTIFY_SCHED_ADVANCE : int
+	SETTING_NOTIFY_SCHED_ADVANCE : int,
+	SETTING_SCT : bool
 	}
 
 def utime() :
@@ -86,7 +88,7 @@ class PsychedBackend :
 			self.create_tables()
 			self.initial_settings()
 			self.conn.commit()
-		assert (self.update_dataversion(5) == True)
+		assert (self.update_dataversion(6) == True)
 
 #--------------------- INITIALIZATION
 	def create_tables(self) :
@@ -114,6 +116,7 @@ class PsychedBackend :
 		self.setting_set(SETTING_NOTIFY_SCHED, True)
 		self.setting_set(SETTING_NOTIFY_TASK_ADVANCE, 0)
 		self.setting_set(SETTING_NOTIFY_SCHED_ADVANCE, 0)
+		self.setting_set(SETTING_SCT, True)
 
 
 #--------------------- DATA FORMAT VERSIONS
@@ -122,7 +125,8 @@ class PsychedBackend :
 			2 : self.update_rev_2,
 			3 : self.update_rev_3,
 			4 : self.update_rev_4,
-			5 : self.update_rev_5
+			5 : self.update_rev_5,
+			6 : self.update_rev_6
 		}
 		crev = self.setting_get(SETTING_DATAVERSION)
 		if (crev < rev) :
@@ -144,16 +148,23 @@ class PsychedBackend :
 
 	def update_rev_3(self) :
 		self.cursor.execute('create index sched_duration on sched(duration)')
+		return True
 	
 	def update_rev_4(self) :
 		self.setting_set(SETTING_NOTIFY_TASK, True)
 		self.setting_set(SETTING_NOTIFY_SCHED, True)
 		self.setting_set(SETTING_NOTIFY_TASK_ADVANCE, 0)
 		self.setting_set(SETTING_NOTIFY_SCHED_ADVANCE, 0)
+		return True
 
 	def update_rev_5(self) :
 		self.cursor.execute('create index task_complete on task(complete)')
 		self.cursor.execute('create index sched_ts on sched(ts)')
+		return True
+
+	def update_rev_6(self) :
+		self.setting_set(SETTING_SCT, True)
+		return True
 
 #--------------------- TRANSACTION SAFETY
 	def action_complete(self) :
@@ -219,9 +230,12 @@ class PsychedBackend :
 	def fetch_task(self, id) :
 		return self.cursor.execute('select id,text,due,complete from task where id=?', (id, )).fetchall()[0]
 
-	def fetch_dated_tasks(self, timestamp, range) :
-		return self.cursor.execute('select id,text,due,complete from task where due>=? and due<?', (timestamp, timestamp + range)).fetchall()
-
+	def fetch_dated_tasks(self, timestamp, range, sct=True) :
+		additional_where = ''
+		if not sct :
+			additional_where = ' and complete=0'
+		return self.cursor.execute('select id,text,due,complete from task where due>=? and due<?%s' % additional_where, (timestamp, timestamp + range)).fetchall()
+	# not used (yet)
 	def fetch_undated_tasks(self) :
 		return self.cursor.execute('select id,text,due,complete from task where due isnull').fetchall()
 

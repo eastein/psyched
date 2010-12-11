@@ -2,18 +2,19 @@
 '''
 Psyched is a scheduling and task management application.
 
-Copyright 2007-2008 Eric Stein
+Copyright 2007-2010 Eric Stein
 License: GPL2/GPL3, at your option.  For details see LICENSE.
 
 $Id$
 '''
 
 PROGRAM 	= "Psyched"
-PERIOD_3	= "_3 Days"
-PERIOD_7	= "_Week"
-PERIOD_14	= "_2 Weeks"
-HIDECAL		= "_Hide Calendar"
-SHOWCAL		= "_Show Calendar"
+PERIOD_3	= "_3D"
+PERIOD_7	= "_W"
+PERIOD_14	= "_2W"
+HIDECAL		= "_Hide Cal"
+SHOWCAL		= "_Calendar"
+PREFS		= "_Prefs"
 SCHEDULE	= "Schedule"
 TASKS		= "Tasks"
 ATTENDED	= "Attended"
@@ -37,6 +38,7 @@ SETTING_NT	= "Notify me about tasks"
 SETTING_NS	= "Notify me about schedule items"
 SETTING_NTD	= "Minutes before due"
 SETTING_NSD	= "Minutes before appointment"
+SETTING_SCT	= "Show Completed Tasks"
 QUIT		= "Quit"
 T_S		= "Task"
 T_P		= "Tasks"

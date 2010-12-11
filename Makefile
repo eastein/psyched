@@ -1,4 +1,4 @@
-# Copyright 2007-2008 Eric Stein
+# Copyright 2007-2010 Eric Stein
 # Makefile License: GPL2
 # Some parts of makefile copied from Meld, a graphical diff tool.
 #
