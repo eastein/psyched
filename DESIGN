@@ -88,11 +88,11 @@ x	warn about schedule conflicts only if the conflicting event(s) have not been a
 x	maemo integration
 x		hide persistent window position setting on maemo platform
 x		preferences button on top bar on maemo platform (no tray icon)
-		make notifications work on n900
-			icon
-			stackable; if more than one, join them together
 
 Release 0.1.6
+	make notifications work on n900
+		icon
+		stackable; if more than one, join them together
 	better state machine for notifications; avoid possibility of missing things that need display
 	state machine should be smarter when the 'before' preferences are increased or decreased
 	adaptive sleep length in notifications thread for battery savings on mobile platforms
