@@ -90,7 +90,7 @@ class PsychedBackend :
 			self.create_tables()
 			self.initial_settings()
 			self.conn.commit()
-		assert (self.update_dataversion(7) == True)
+		assert (self.update_dataversion(8) == True)
 
 #--------------------- INITIALIZATION
 	def create_tables(self) :
@@ -98,9 +98,11 @@ class PsychedBackend :
 		self.cursor.execute('create table settings (id integer primary key, setting blob)')
 		self.cursor.execute('create table task (id integer primary key autoincrement, text blob, due integer null, complete integer)')
 		self.cursor.execute('create table sched (id integer primary key autoincrement, text blob, ts integer, duration integer, complete integer, task integer key)')
+		self.cursor.execute('create index task_due on task(due)')
 		self.cursor.execute('create index task_complete on task(complete)')
 		self.cursor.execute('create index sched_ts on sched(ts)')
 		self.cursor.execute('create index sched_duration on sched(duration)')
+		self.cursor.execute('create index sched_complete on sched(complete)')
 
 	def initial_settings(self) :
 		'''Default settings
@@ -129,7 +131,8 @@ class PsychedBackend :
 			4 : self.update_rev_4,
 			5 : self.update_rev_5,
 			6 : self.update_rev_6,
-			7 : self.update_rev_7
+			7 : self.update_rev_7,
+			8 : self.update_rev_8
 		}
 		crev = self.setting_get(SETTING_DATAVERSION)
 		if (crev < rev) :
@@ -171,6 +174,11 @@ class PsychedBackend :
 
 	def update_rev_7(self) :
 		self.setting_set(SETTING_SHOW_CALENDAR, True)
+		return True
+
+	def update_rev_8(self) :
+		self.cursor.execute('create index sched_complete on sched(complete)')
+		self.cursor.execute('create index task_due on task(due)')
 		return True
 
 #--------------------- TRANSACTION SAFETY
@@ -264,7 +272,7 @@ class PsychedBackend :
 		else :
 			start = timestamp - ml
 			end = timestamp + range
-		return self.cursor.execute('select id,text,ts,duration from (select * from sched where ts>? and ts<?) where ts>=? or ts+duration>?', (start, end, timestamp, timestamp)).fetchall()
+		return self.cursor.execute('select id,text,ts,duration from (select * from sched where ts>? and ts<? and complete=0) where ts>=? or ts+duration>?', (start, end, timestamp, timestamp)).fetchall()
 
 #--------------------- SETTINGS
 	def setting_get(self, id) :
