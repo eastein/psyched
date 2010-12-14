@@ -78,13 +78,35 @@ x		make add buttons small & uniform
 x		left justify dates
 
 Release 0.1.4
-	completed maemo integration
-		left side icon
-		install in menus
-		backups
-		.deb
+x	make times and durations easier to enter
 
 Release 0.1.5
+x	smaller buttons on top bar for ease of use
+x	new preference: show completed tasks or not
+x	persistent calendar hide/shown state over runs of the program
+x	warn about schedule conflicts only if the conflicting event(s) have not been attended yet
+x	maemo integration
+x		hide persistent window position setting on maemo platform
+x		preferences button on top bar on maemo platform (no tray icon)
+		make notifications work on n900
+			icon
+			stackable; if more than one, join them together
+
+Release 0.1.6
+	better state machine for notifications; avoid possibility of missing things that need display
+	state machine should be smarter when the 'before' preferences are increased or decreased
+	adaptive sleep length in notifications thread for battery savings on mobile platforms
+	notif click action; raise psyched window; if only task or sched, select tab, possibly scroll?
+	notif click: reselect range if forward or backward of current date?
+
+Release 0.1.7
+	more complete maemo integration
+		left side icon
+		add to runnable programs
+		backups integration
+		.deb
+
+Release 0.1.8
 	fix bug #3
 	fix bug #5
 	UI work
