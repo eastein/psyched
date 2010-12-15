@@ -1,5 +1,5 @@
 Design Tenets	100% keystroke accessible
-	Simplest action simplest to complete
+	Most common action simplest to complete
 	Good visual cues
 
 Repeats
@@ -41,85 +41,3 @@ Repeats
 			best of both worlds
 		con
 			more complex
-
-Done	Feature
-
-Release 0.1.0
-x	task (create task)
-x	create appointment (unconnected to task)
-x	change time, description, length, and attendance status of tasks & scheduled appointments
-x	change range of view
-x	change displayed date
-x	delete items
-x	paging
-x	reschedule with calendar
-
-Release 0.1.1
-x	Enter forms using enter key not just alt+o or tab+enter
-x	alerts of impending deadlines/events
-
-Release 0.1.2
-x	Screen memory
-x		while hidden
-x		while closed (opt)
-x	Settings dialog
-x	better looking date labels
-
-Release 0.1.3
-x	time conflicts
-x		on addition
-x		on edit in place
-x		on -> reschedule
-x	add notification settings
-x	fix bug: cannot create schedule items unless a schedule item already exists
-x	partial maemo support
-x	clean up UI
-x		make add buttons small & uniform
-x		left justify dates
-
-Release 0.1.4
-x	make times and durations easier to enter
-
-Release 0.1.5
-x	smaller buttons on top bar for ease of use
-x	new preference: show completed tasks or not
-x	persistent calendar hide/shown state over runs of the program
-x	warn about schedule conflicts only if the conflicting event(s) have not been attended yet
-x	maemo integration
-x		hide persistent window position setting on maemo platform
-x		preferences button on top bar on maemo platform (no tray icon)
-
-Release 0.1.6
-	make notifications work on n900
-		icon
-		stackable; if more than one, join them together
-	better state machine for notifications; avoid possibility of missing things that need display
-	state machine should be smarter when the 'before' preferences are increased or decreased
-	adaptive sleep length in notifications thread for battery savings on mobile platforms
-	notif click action; raise psyched window; if only task or sched, select tab, possibly scroll?
-	notif click: reselect range if forward or backward of current date?
-
-Release 0.1.7
-	more complete maemo integration
-		left side icon
-		add to runnable programs
-		backups integration
-		.deb
-
-Release 0.1.8
-	fix bug #3
-	fix bug #5
-	UI work
-		fix bug #1
-		close notifications when the task/event is checked off
-
-Release 0.2.0
-	unscheduled tasks
-	drag and drop reschedule
-	add about dialog
-	keybindings for everything
-	recurring items
-
-Release 0.2.1
-	annotate (add or edit notes on a task for item)
-	more user friendly error reporting when the datafile is too new for this version
