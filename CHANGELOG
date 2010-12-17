@@ -47,9 +47,10 @@ Release 0.1.6
 	make notifications work on n900
 		icon
 		stackable; if more than one, join them together
-	better state machine for notifications; avoid possibility of missing things that need display
+x	adaptive sleep length in notifications thread for battery savings on mobile platforms
 	state machine should be smarter when the 'before' preferences are increased or decreased
-	adaptive sleep length in notifications thread for battery savings on mobile platforms
+	better state machine for notifications; avoid possibility of missing things that need display
+	when both kinds of notifications are disabled, the notifications thread will be paused
 	notif click action; raise psyched window; if only task or sched, select tab, possibly scroll?
 	notif click: reselect range if forward or backward of current date?
 
