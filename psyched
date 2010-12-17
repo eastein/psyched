@@ -16,6 +16,8 @@ import gobject
 import time
 import datetime
 import threading
+import Queue
+
 try :
 	import hildon
 except :
@@ -394,6 +396,7 @@ class Psyched(toolkit.Window) :
 	def __die__(self, parent=None) :
 		global cont
 		cont = False
+		self.timer.stop()
 
 	def window_key(self, widget, event) :
 		if event.keyval == gtk.keysyms.F6 :
@@ -1048,26 +1051,29 @@ class BackgroundTimer(threading.Thread) :
 	def __init__(self) :
 		# initialize empty callback list
 		self.callbacks = {'d':[], 'h':[], 'm':[], 's':[]}
+		# push a None to the queue to stop the thread
+		self.endq = Queue.Queue()
 		# start thread
 		threading.Thread.__init__(self)
 
-	def run(self) :
-		global cont
+	def stop(self) :
+		self.endq.put(None)
 
+	def run(self) :
 		# initial time info
 		self.gmt = time.gmtime()
-		self.day = time.strftime('%j', self.gmt)
-		self.hour = time.strftime('%H', self.gmt)
-		self.min = time.strftime('%M', self.gmt)
-		self.sec = time.strftime('%S', self.gmt)
+		self.day = self.gmt.tm_yday
+		self.hour = self.gmt.tm_hour
+		self.min = self.gmt.tm_min
+		self.sec = self.gmt.tm_sec
 
-		while cont :
+		while True :
 			# current time info
 			gmt = time.gmtime()
-			_day = time.strftime('%j', gmt)
-			_hour = time.strftime('%H', gmt)
-			_min = time.strftime('%M', gmt)
-			_sec = time.strftime('%S', gmt)
+			_day = gmt.tm_yday
+			_hour = gmt.tm_hour
+			_min = gmt.tm_min
+			_sec = gmt.tm_sec
 
 			# for each interval, run the callbacks if interval
 			# has passed
@@ -1084,13 +1090,24 @@ class BackgroundTimer(threading.Thread) :
 				for c in self.callbacks['s'] :
 					c()
 
+			# this depends on sec being an integer, we could get more loops than we need otherwise
+			remaining_s = 60 - _sec
+			if remaining_s <= 2 :
+				wait= 0.25
+			else :
+				wait = remaining_s - 2
+			try :
+				self.endq.get(timeout=wait)
+				# this means we got something on the queue; we should exit.
+				return
+			except Queue.Empty :
+				pass
+
 			# copy current time to old time for use in next cycle
 			self.day = _day
 			self.hour = _hour
 			self.min = _min
 			self.sec = _sec
-
-			time.sleep(0.25)
 
 	def add_callback(self, period, callback) :
 		self.callbacks[period].append(callback)
@@ -1112,4 +1129,4 @@ if __name__ == '__main__':
 	try:
 		gtkm()
 	except KeyboardInterrupt:
-		cont = False
+		psyched.__die__()
