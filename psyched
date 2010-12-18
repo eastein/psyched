@@ -277,25 +277,30 @@ class Psyched(toolkit.Window) :
 			]
 		set_td += sb_opt
 		set_sd += sb_opt
-		v = self.input_dialog(ps.CONFIG,
-			[
-			(gtk.CheckButton, ps.SETTING_PERS, None, pers_up),
+		dialog_set = [
 			(gtk.CheckButton, ps.SETTING_NT, None, set_t),
 			(gtk.SpinButton, ps.SETTING_NTD, None, set_td),
 			(gtk.CheckButton, ps.SETTING_NS, None, set_s),
 			(gtk.SpinButton, ps.SETTING_NSD, None, set_sd),
 			(gtk.CheckButton, ps.SETTING_SCT, None, set_sct)
-			],
+		]
+		if not nokia :
+			dialog_set = [(gtk.CheckButton, ps.SETTING_PERS, None, pers_up)] + dialog_set
+		
+		v = self.input_dialog(ps.CONFIG,
+			dialog_set,
 			live_status=False)
 		if v != None :
-			self.persist = v[ps.SETTING_PERS]
+			if not nokia :
+				self.persist = v[ps.SETTING_PERS]
 			self.notify_t = v[ps.SETTING_NT]
 			self.notify_td = v[ps.SETTING_NTD]
 			self.notify_s = v[ps.SETTING_NS]
 			self.notify_sd = v[ps.SETTING_NSD]
 			sct_changed = self.sct != v[ps.SETTING_SCT]
 			self.sct = v[ps.SETTING_SCT]
-			self.backend.setting_set(pb.SETTING_POSITION_STORE, self.persist)
+			if not nokia :
+				self.backend.setting_set(pb.SETTING_POSITION_STORE, self.persist)
 			self.backend.setting_set(pb.SETTING_NOTIFY_TASK, self.notify_t)
 			self.backend.setting_set(pb.SETTING_NOTIFY_TASK_ADVANCE, self.notify_td)
 			self.backend.setting_set(pb.SETTING_NOTIFY_SCHED, self.notify_s)
