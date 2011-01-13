@@ -221,8 +221,14 @@ class PsychedBackend :
 	def get_sched_duration(self, id) :
 		return fupack(self.cursor.execute('select duration from sched where id=?', (id, )).fetchall()[0])
 
+	def get_sched_text(self, id) :
+		return fupack(self.cursor.execute('select text from sched where id=?', (id, )).fetchall()[0])
+
 	def get_task_due(self, id) :
 		return fupack(self.cursor.execute('select due from task where id=?', (id, )).fetchall()[0])
+
+	def get_task_text(self, id) :
+		return fupack(self.cursor.execute('select text from task where id=?', (id, )).fetchall()[0])
 
 #--------------------- ADDERS
 	def insert_task(self, text, due) :

@@ -47,6 +47,7 @@ Release 0.1.6
 	make notifications work on n900
 		icon
 		stackable; if more than one, join them together
+x	duplication option for schedule items and tasks; same as open for editing on sent email
 x	hide persistent window position option in preferences on mobile platforms
 x	adaptive sleep length in notifications thread for battery savings on mobile platforms
 	state machine should be smarter when the 'before' preferences are increased or decreased

@@ -611,11 +611,13 @@ class Psyched(toolkit.Window) :
 				if kind == "sched" :
 					remove = self.remove_sched
 					reschedule = self.reschedule_sched
+					duplicate = self.duplicate_sched
 				elif kind == "task" :
 					remove = self.remove_task
 					reschedule = self.reschedule_task
+					duplicate = self.duplicate_task
 				argument = (model, iter)
-				self.create_menu([(ps.RESCHEDULE, reschedule, argument), (ps.DELETE, remove, argument)], event.button)
+				self.create_menu([(ps.RESCHEDULE, reschedule, argument), (ps.DUPLICATE, duplicate, argument), (ps.DELETE, remove, argument)], event.button)
 
 	def remove_sched(self, menu, t) :
 		(m, i) = t
@@ -714,16 +716,38 @@ class Psyched(toolkit.Window) :
 				rec = self.backend.fetch_sched(id)
 				self.opt_add_row('sched', self.midnight(ts), self.sched_db2li(rec), self.sched_model_append)
 
-	def create_task(self, date=None) :
+	def duplicate_task(self, menu, t) :
+		(model, iter) = t
+		id = model.get_value(iter, TCOLUMN_ID)
+		due = self.backend.get_task_due(id)
+		desc = self.backend.get_task_text(id)
+
+		self.create_task(tdue=due, tdescription=desc)
+
+	"""
+	You have 3 choices
+		* no arguments
+		* date argument
+		* tdue and tdescription arguments
+	Other behaviour is undefined.
+	"""
+	def create_task(self, date=None, tdue=None, tdescription=None) :
 		calmods = []
+		duemods = []
+		descmods = []
 		if date != None :
 			calmods = self.create_calmod(date)
+		elif tdue is not None and tdescription is not None :
+			od = pb.ts2dt(tdue)
+			calmods = self.create_calmod(od)
+			duemods = [lambda e: e.set_text(pb.tod(tdue))]
+			descmods = [lambda e: e.set_text(tdescription)]
 
 		v = self.input_dialog(ps.NEWTASK,
 			[
 			(gtk.Calendar, ps.DUEDATE, None, calmods),
-			(gtk.Entry, ps.DUETIME, pv.check_time, []),
-			(gtk.Entry, ps.DESCRIPTION, None, [])])
+			(gtk.Entry, ps.DUETIME, pv.check_time, duemods),
+			(gtk.Entry, ps.DESCRIPTION, None, descmods)])
 
 		if v != None :
 			# get date and time
@@ -815,17 +839,42 @@ class Psyched(toolkit.Window) :
 				rec = self.backend.fetch_task(id)
 				self.opt_add_row('task', self.midnight(ts), self.task_db2li(rec), self.task_model_append)
 
-	def create_sched(self, date=None) :
+	def duplicate_sched(self, menu, t) :
+		(model, iter) = t
+		id = model.get_value(iter, SCOLUMN_ID)
+		t = self.backend.get_sched_ts(id)
+		d = self.backend.get_sched_duration(id)
+		desc = self.backend.get_sched_text(id)
+
+		self.create_sched(stime=t, sduration=d, sdescription=desc)
+
+	"""
+	You can supply:
+		* no args
+		* just date
+		* stime, sduration (as integers), sdescription (as string)
+	Only one of the above sets is valid. Results are undefined for other usage.
+	"""
+	def create_sched(self, date=None, stime=None, sduration=None, sdescription=None) :
 		calmods = []
+		tmods = []
+		durmods = []
+		descmods = []
 		if date != None :
 			calmods = self.create_calmod(date)
+		elif sduration is not None and stime is not None and sdescription is not None :
+			od = pb.ts2dt(stime)
+			calmods = self.create_calmod(od)
+			tmods = [lambda e: e.set_text(pb.tod(stime))]
+			durmods = [lambda e: e.set_text(pb.sec2dur(sduration))]
+			descmods = [lambda e: e.set_text(sdescription)]
 
 		v = self.input_dialog(ps.NEWAPPOINTMENT,
 			[
 			(gtk.Calendar, ps.DATE, None, calmods),
-			(gtk.Entry, ps.TIME, pv.check_time, []),
-			(gtk.Entry, ps.DURATION, pv.check_interval, []),
-			(gtk.Entry, ps.DESCRIPTION, None, [])])
+			(gtk.Entry, ps.TIME, pv.check_time, tmods),
+			(gtk.Entry, ps.DURATION, pv.check_interval, durmods),
+			(gtk.Entry, ps.DESCRIPTION, None, descmods)])
 
 		if v != None :
 			# get date and time
