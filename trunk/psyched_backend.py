@@ -76,6 +76,9 @@ class PsychedBackend :
 	
 	handles storage, querying, and changes.
 	'''
+
+	CURRENT_DATAVERSION = 8
+
 	def __init__(self) :
 		d = self.get_directory()
 		os.chdir(d)
@@ -90,7 +93,7 @@ class PsychedBackend :
 			self.create_tables()
 			self.initial_settings()
 			self.conn.commit()
-		assert (self.update_dataversion(8) == True)
+		assert (self.update_dataversion(PsychedBackend.CURRENT_DATAVERSION) == True)
 
 #--------------------- INITIALIZATION
 	def create_tables(self) :
@@ -109,7 +112,7 @@ class PsychedBackend :
 	
 		Only use this function for initialization - not for resetting settings to default.
 		'''
-		self.setting_set(SETTING_DATAVERSION, 5)
+		self.setting_set(SETTING_DATAVERSION, PsychedBackend.CURRENT_DATAVERSION)
 		self.setting_set(SETTING_RANGE, 7)
 		self.setting_set(SETTING_POSITION_STORE, True)
 		self.setting_set(SETTING_POSITION_X, 0)
@@ -134,6 +137,8 @@ class PsychedBackend :
 			7 : self.update_rev_7,
 			8 : self.update_rev_8
 		}
+		assert (PsychedBackend.CURRENT_DATAVERSION in updict)
+
 		crev = self.setting_get(SETTING_DATAVERSION)
 		if (crev < rev) :
 			for r in range(crev + 1, rev + 1) :
