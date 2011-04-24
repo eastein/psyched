@@ -191,10 +191,10 @@ class Psyched(toolkit.Window) :
 
 		self.notify_backend = None
 		# choose a notification system
-		if nokia :
-			self.notifier = pn.HildonNotifier(self)
-		else :
-			self.notifier = pn.PyNotifier("Psyched")
+		#if nokia :
+		#	self.notifier = pn.HildonNotifier(self)
+		#else :
+		self.notifier = pn.PyNotifier("Psyched")
 
 		self.timer.add_callback('m', self.show_notifications)
 
