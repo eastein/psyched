@@ -32,3 +32,6 @@ exists as of 0.1.4
 when the timezone has changed and the pages haven't been redisplayed yet, new tasks won't
 show up on the page. This is probably the same for schedule.
 exists as of 0.1.4
+
+#8
+On Maemo, notifications do not work on n900 - argument count is wrong.
