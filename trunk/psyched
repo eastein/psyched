@@ -520,22 +520,47 @@ class Psyched(toolkit.Window) :
 
 		row = 0
 		gui = []
+		label_hboxes = {}
 		# for each field, create label and appropriate gtk element
 		for field in fields :
-			(type, name, valid, init) = field
-			label = gtk.Label(name)
-			table.attach(label, 0, 1, row, row + 1)
+			try :
+				(type, name, valid, init) = field
+				shared_label = None
+			except ValueError :
+				(type, name, valid, init, shared_label) = field
 
+			new_row = True
+
+			# potentially create a left-hand label and put it in the table
+			label = None
+			if not shared_label :
+				label = gtk.Label(name)
+			elif shared_label not in label_hboxes :
+				label = gtk.Label(shared_label)
+			else :
+				new_row = False
+
+			if label :
+				table.attach(label, 0, 1, row, row + 1)
+
+			# create the field itself
 			f = type()
 			if type == gtk.Entry :
 				f.connect('activate', self.submit_dialog, d)
 			for i in init :
 				i(f)
-
-			table.attach(f, 1, 2, row, row + 1)
 			gui.append((f, type, name, valid))
 
-			row += 1
+			cell_insert = f
+			if shared_label :
+				if shared_label not in label_hboxes :
+					label_hboxes[shared_label] = gtk.HBox()
+				label_hboxes[shared_label].pack_start(f, expand=False, fill=False)
+				cell_insert = label_hboxes[shared_label]
+
+			if new_row :
+				table.attach(cell_insert, 1, 2, row, row + 1)
+				row += 1
 
 		d.show_all()
 
@@ -869,11 +894,16 @@ class Psyched(toolkit.Window) :
 			durmods = [lambda e: e.set_text(pb.sec2dur(sduration))]
 			descmods = [lambda e: e.set_text(sdescription)]
 
+		if nokia :
+			td_label = ps.TIMEDURATION
+		else :
+			td_label = None
+
 		v = self.input_dialog(ps.NEWAPPOINTMENT,
 			[
 			(gtk.Calendar, ps.DATE, None, calmods),
-			(gtk.Entry, ps.TIME, pv.check_time, tmods),
-			(gtk.Entry, ps.DURATION, pv.check_interval, durmods),
+			(gtk.Entry, ps.TIME, pv.check_time, tmods, td_label),
+			(gtk.Entry, ps.DURATION, pv.check_interval, durmods, td_label),
 			(gtk.Entry, ps.DESCRIPTION, None, descmods)])
 
 		if v != None :
