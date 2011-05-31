@@ -1,9 +1,25 @@
-Design Tenets	100% keystroke accessible
-	Most common action simplest to complete
-	Good visual cues
+#Design Tenets
 
-Nokia Resources
-	http://danielwould.wordpress.com/2010/05/22/n900-im-style-notifications-from-python/
+* Most common action simplest to complete
+* Good visual cues
+
+# Nokia Resources
+
+http://danielwould.wordpress.com/2010/05/22/n900-im-style-notifications-from-python/
+
+# Synchronization
+
+The ability to use psyched on multiple machines and have them all stay up to date is valuable.  In order to support synchronization with imperfect network access, it'll be important to switch from sequential numeric IDs to using UUIDs in the SQLite backing databases for tasks as created.  This is needed because any newly created entries in multiple instances would have the potential for conflicts if IDs were sequential in all instances.
+
+# Peer Topology
+
+## Star
+
+Star topology depends on a single configured server (generally not running the same software) being the only information interchange peer of all the other peers.
+
+## P2P
+
+p2p topology would require more code but would allow the system to operate (if designed correctly) such that it needs no special node and can operate without 'full internet'.
 
 Repeats
 	Repeat Types
