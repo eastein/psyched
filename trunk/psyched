@@ -555,7 +555,7 @@ class Psyched(toolkit.Window) :
 			if shared_label :
 				if shared_label not in label_hboxes :
 					label_hboxes[shared_label] = gtk.HBox()
-				label_hboxes[shared_label].pack_start(f, expand=False, fill=False)
+				label_hboxes[shared_label].pack_start(f, expand=True, fill=True)
 				cell_insert = label_hboxes[shared_label]
 
 			if new_row :
