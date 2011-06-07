@@ -703,11 +703,16 @@ class Psyched(toolkit.Window) :
 		tmods = [lambda e: e.set_text(pb.tod(t))]
 		dmods = [lambda e: e.set_text(pb.sec2dur(d))]
 
+		if nokia :
+			td_label = ps.TIMEDURATION
+		else :
+			td_label = None
+
 		v = self.input_dialog(ps.RESCHEDULE,
 			[
 			(gtk.Calendar, ps.DATE, None, calmods),
-			(gtk.Entry, ps.TIME, pv.check_time, tmods),
-			(gtk.Entry, ps.DURATION, pv.check_interval, dmods)])
+			(gtk.Entry, ps.TIME, pv.check_time, tmods, td_label),
+			(gtk.Entry, ps.DURATION, pv.check_interval, dmods, td_label)])
 
 		if v != None :
 			# get date and time
