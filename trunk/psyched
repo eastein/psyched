@@ -790,6 +790,12 @@ class Psyched(toolkit.Window) :
 			# fetch description
 			text = v[ps.DESCRIPTION]
 
+			similar = self.backend.fetch_dated_tasks(self.midnight(ts), 3600*24)
+			similar = filter((lambda (a,b,c,d): pb.considered_similar(b, text)), similar)
+
+			if similar and not self.similar_dialog(similar, ps.SIMILAR_T_R) :
+				return
+
 			# insert task into database
 			ns = self.backend.insert_task(text, ts)
 			# commit
@@ -1133,6 +1139,22 @@ class Psyched(toolkit.Window) :
 			elif rsp == gtk.RESPONSE_DELETE_EVENT :
 				return False
 			raise RuntimeError, 'Unknown response code in conflict_dialog()'
+		else :
+			return True
+
+	def similar_dialog(self, similarities, text) :
+		if len(similarities) > 0 :
+			msg = text + '\n'
+			for (id_, body, ts_, dur) in similarities :
+				msg += '\n' + body
+			rsp = self.response_dialog(ps.SIMILAR, msg, [(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL), (gtk.STOCK_GO_FORWARD, ps.CONTINUE, gtk.RESPONSE_OK)])
+			if rsp == gtk.RESPONSE_CANCEL :
+				return False
+			elif rsp == gtk.RESPONSE_OK :
+				return True
+			elif rsp == gtk.RESPONSE_DELETE_EVENT :
+				return False
+			raise RuntimeError, 'Unknown response code in similar_dialog()'
 		else :
 			return True
 

@@ -71,6 +71,55 @@ def sec2dur(s) :
 		m = '0' + m
 	return h + ':' + m
 
+
+# By Magnus Hetland (http://hetland.org/), props!
+def levenshtein(a,b):
+	"Calculates the Levenshtein distance between a and b."
+	n, m = len(a), len(b)
+	if n > m:
+		# Make sure n <= m, to use O(min(n,m)) space
+		a,b = b,a
+		n,m = m,n
+		
+	current = range(n+1)
+	for i in range(1,m+1):
+		previous, current = current, [i]+[0]*n
+		for j in range(1,n+1):
+			add, delete = previous[j]+1, current[j-1]+1
+			change = previous[j-1]
+			if a[j-1] != b[i-1]:
+				change = change + 1
+			current[j] = min(add, delete, change)
+			
+	return current[n]
+
+def considered_similar(a, b) :
+	m = 2.5
+	edit_extra = 0.2
+	lev_total = 6.0
+	a = a.lower()
+	b = b.lower()
+	fl_a = float(len(a))
+	fl_b = float(len(b))
+	try :
+		if fl_a / fl_b >= m and fl_b / fl_a >= m :
+			return False
+	except :
+		pass
+
+	lev = levenshtein(a, b)
+	diff = abs(fl_a - fl_b)
+	smaller = min(fl_a, fl_b)
+
+	# here be voodoo
+	if lev <= diff + edit_extra * smaller :
+		return True
+
+	if lev <= ((fl_a + fl_b) / lev_total) :
+		return True
+
+	return False
+
 class PsychedBackend :
 	'''Psyched Backend
 	

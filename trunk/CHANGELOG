@@ -50,7 +50,7 @@ x	hide persistent window position option in preferences on mobile platforms
 x	adaptive sleep length in notifications thread for battery savings on mobile platforms
 x	on n900, put time and duration on the same line in the add, duplicate, and reschedule appointmetn dialogs
 x	better state machine for notifications; avoid possibility of missing things that need display
-	ask when possibly duplicating a task or event. base on levenshtein distance, punctuation free, words sorted
+x	ask when possibly duplicating a task or event. base on levenshtein distance, punctuation free, words sorted
 
 Release 0.1.7
 	more complete maemo integration

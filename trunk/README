@@ -28,6 +28,10 @@ n900
 --------
 	I need to fill this in, there are some complexities here.
 
+Running Tests
+--------
+	nosetests -v tests
+
 Files
 -------------------
 
