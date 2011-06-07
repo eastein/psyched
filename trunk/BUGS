@@ -35,3 +35,4 @@ exists as of 0.1.4
 
 #8
 On Maemo, notifications do not work on n900 - argument count is wrong.
+fixed as of r170
