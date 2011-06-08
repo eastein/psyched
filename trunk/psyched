@@ -790,7 +790,7 @@ class Psyched(toolkit.Window) :
 			# fetch description
 			text = v[ps.DESCRIPTION]
 
-			similar = self.backend.fetch_dated_tasks(self.midnight(ts), 3600*24)
+			similar = self.backend.fetch_dated_tasks(self.midnight(ts), 3600*24, sct=False)
 			similar = filter((lambda (a,b,c,d): pb.considered_similar(b, text)), similar)
 
 			if similar and not self.similar_dialog(similar, ps.SIMILAR_T_R) :
