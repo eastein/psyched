@@ -28,9 +28,20 @@ n900
 --------
 	I need to fill this in, there are some complexities here.
 
-Running Tests
+Releasing: Run Tests
 --------
+
+Run the manual and automatic tests.
+
+To run the automatic tests (coverage is pretty low at this point):
+
 	nosetests -v tests
+
+To run the manual tests, perform these tasks:
+
+* Move your .psyched directory and check that basic program startup works OK.
+* Try adding and removing a few tasks and schedule items.
+* Create a task and a schedule item and make sure that the alerts work as expected.
 
 Files
 -------------------
