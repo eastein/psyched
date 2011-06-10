@@ -93,29 +93,50 @@ def levenshtein(a,b):
 			
 	return current[n]
 
+# naive implementation of LCS
+def longest_common_substring(a,b) :
+	l = 0
+	ss = ''
+	for a_s in range(len(a)) :
+		for a_l in range(len(a) - a_s + 1) :
+			ss_ = a[a_s:a_s+a_l]
+			if ss_ in b and len(ss_) > l :
+				l = len(ss_)
+				ss = ss_
+	return ss
+
 def considered_similar(a, b) :
 	m = 2.5
+	m_mid = 1.5
 	edit_extra = 0.2
 	lev_total = 6.0
 	a = a.lower()
 	b = b.lower()
 	fl_a = float(len(a))
 	fl_b = float(len(b))
+	ratio = 0
 	try :
-		if fl_a / fl_b >= m and fl_b / fl_a >= m :
-			return False
+		ratio = max(fl_a / fl_b, fl_b / fl_a)
 	except :
-		pass
+		return False
+
+	if ratio >= m :
+		return False
 
 	lev = levenshtein(a, b)
+	lcs = len(longest_common_substring(a, b))
 	diff = abs(fl_a - fl_b)
 	smaller = min(fl_a, fl_b)
 
-	# here be voodoo
-	if lev <= diff + edit_extra * smaller :
+	if lev <= ((fl_a + fl_b) / lev_total) :
 		return True
 
-	if lev <= ((fl_a + fl_b) / lev_total) :
+	# here, the ratio of one to the other is pretty unbalanced, so go into close-to-lcs mode.
+	if ratio > m_mid :
+		if lcs <= smaller * (1 - edit_extra) :
+			return False
+
+	if lev <= diff + edit_extra * smaller :
 		return True
 
 	return False
