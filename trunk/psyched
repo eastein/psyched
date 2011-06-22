@@ -790,8 +790,7 @@ class Psyched(toolkit.Window) :
 			# fetch description
 			text = v[ps.DESCRIPTION]
 
-			similar = self.backend.fetch_dated_tasks(self.midnight(ts), 3600*24, sct=False)
-			similar = filter((lambda (a,b,c,d): pb.considered_similar(b, text)), similar)
+			similar = self.backend.fetch_similar_onday(self.midnight(ts), text)
 
 			if similar and not self.similar_dialog(similar, ps.SIMILAR_T_R) :
 				return
@@ -862,11 +861,16 @@ class Psyched(toolkit.Window) :
 			# create unix timestamp
 			ts = time.mktime((y, mo + 1, d, h, mi, 0, 0, 0, -1))
 
+			similar = self.backend.fetch_similar_onday(self.midnight(ts), model.get(iter, TCOLUMN_TEXT)[0])
+
+			if similar and not self.similar_dialog(similar, ps.SIMILAR_T_R) :
+				return
+
 			# commit to database
 			self.backend.set_task_due(id, ts)
 			self.backend.action_complete()
 
-			# same day, modityf row
+			# same day, modify row
 			if od == (y, mo + 1, d) :
 				model.set(iter, TCOLUMN_DUE_, pb.tod(ts))
 			# different day, move row
