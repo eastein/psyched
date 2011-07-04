@@ -1,3 +1,7 @@
+DEPRECATED
+
+This file is no longer relevant for bug tracking.  That has moved to github issues.
+
 FIXED
 
 #2
@@ -10,29 +14,6 @@ irregularly, alerts for tasks show up as blank.
 exists as of r116
 fixed as of r118
 
-EXISTING
-
-#1
-description field grows infinitely widthwise instead of using multiple lines in place.
-exists as of 0.1.0
-
-#3
-when the clock changes signifigantly notifications produce strange behaviour
-exists as of 0.1.2
-
-#5
-if a dialog is open, alerts do not occur.
-exists as of r126
-
-#6
-when changing timezones, displayed pages do not update automatically with new times
-exists as of 0.1.4
-
-#7
-when the timezone has changed and the pages haven't been redisplayed yet, new tasks won't
-show up on the page. This is probably the same for schedule.
-exists as of 0.1.4
-
 #8
 On Maemo, notifications do not work on n900 - argument count is wrong.
 fixed as of r170
@@ -40,3 +21,31 @@ fixed as of r170
 #9
 New installs will assert the wrong data version.  This will cause start failure.
 fixed as of r169
+
+EXISTING
+
+#1
+description field grows infinitely widthwise instead of using multiple lines in place.
+exists as of 0.1.0
+Created online at https://github.com/eastein/psyched/issues/1
+
+#3
+when the clock changes signifigantly notifications produce strange behaviour
+exists as of 0.1.2
+Created online at https://github.com/eastein/psyched/issues/2
+
+#5
+if a dialog is open, alerts do not occur.
+exists as of r126
+Created online at https://github.com/eastein/psyched/issues/3
+
+#6
+when changing timezones, displayed pages do not update automatically with new times
+exists as of 0.1.4
+Created online at https://github.com/eastein/psyched/issues/4
+
+#7
+when the timezone has changed and the pages haven't been redisplayed yet, new tasks won't
+show up on the page. This is probably the same for schedule.
+exists as of 0.1.4
+Created online at as part of issue 4, above.
