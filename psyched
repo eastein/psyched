@@ -861,7 +861,7 @@ class Psyched(toolkit.Window) :
 			# create unix timestamp
 			ts = time.mktime((y, mo + 1, d, h, mi, 0, 0, 0, -1))
 
-			similar = self.backend.fetch_similar_onday(self.midnight(ts), model.get(iter, TCOLUMN_TEXT)[0])
+			similar = self.backend.fetch_similar_onday(self.midnight(ts), model.get(iter, TCOLUMN_TEXT)[0], skip=id)
 
 			if similar and not self.similar_dialog(similar, ps.SIMILAR_T_R) :
 				return

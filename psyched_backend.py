@@ -332,9 +332,12 @@ class PsychedBackend :
 			additional_where = ' and complete=0'
 		return self.cursor.execute('select id,text,due,complete from task where due>=? and due<?%s' % additional_where, (timestamp, timestamp + range)).fetchall()
 
-	def fetch_similar_onday(self, midnight_ts, text) :
+	def fetch_similar_onday(self, midnight_ts, text, skip=None) :
 		similar = self.fetch_dated_tasks(midnight_ts, 3600*24, sct=False)
-		return filter((lambda (a,b,c,d): considered_similar(b, text)), similar)
+		similar = filter((lambda (a,b,c,d): considered_similar(b, text)), similar)
+		if skip is not None :
+			similar = filter((lambda (a,b,c,d): a != skip), similar)
+		return similar
 
 	# not used (yet)
 	def fetch_undated_tasks(self) :
