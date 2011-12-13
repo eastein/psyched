@@ -10,7 +10,11 @@ $Id$
 import os
 import sys
 import time
-import sqlite3 as sqlite
+
+try :
+	import sqlite3 as sqlite
+except ImportError :
+	import pysqlite2.dbapi2 as sqlite
 
 NUM_SETTINGS = 13
 (
