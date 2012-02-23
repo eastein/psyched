@@ -722,6 +722,9 @@ class Psyched(toolkit.Window) :
 			# create unix timestamp
 			ts = time.mktime((y, mo + 1, d, h, mi, 0, 0, 0, -1))
 
+			if not self.past_dialog(datetime.date(y, mo + 1, d), ps.PAST_S_R) :
+				return
+
 			# get duration
 			duration = self.dur2sec(self.s2loi(v[ps.DURATION]))
 
@@ -787,12 +790,14 @@ class Psyched(toolkit.Window) :
 			# create unix timestamp
 			ts = time.mktime((y, mo + 1, d, h, mi, 0, 0, 0, -1))
 
+			if not self.past_dialog(datetime.date(y, mo + 1, d), ps.PAST_T) :
+				return
+
 			# fetch description
 			text = v[ps.DESCRIPTION]
 
 			similar = self.backend.fetch_similar_onday(self.midnight(ts), text)
-
-			if similar and not self.similar_dialog(similar, ps.SIMILAR_T_R) :
+			if similar and not self.similar_dialog(similar, ps.SIMILAR_T) :
 				return
 
 			# insert task into database
@@ -861,9 +866,11 @@ class Psyched(toolkit.Window) :
 			# create unix timestamp
 			ts = time.mktime((y, mo + 1, d, h, mi, 0, 0, 0, -1))
 
-			similar = self.backend.fetch_similar_onday(self.midnight(ts), model.get(iter, TCOLUMN_TEXT)[0], skip=id)
+			if not self.past_dialog(datetime.date(y, mo + 1, d), ps.PAST_T_R) :
+				return
 
-			if similar and not self.similar_dialog(similar, ps.SIMILAR_T_R) :
+			similar = self.backend.fetch_similar_onday(self.midnight(ts), model.get(iter, TCOLUMN_TEXT)[0], skip=id)
+			if similar and not self.similar_dialog(similar, ps.SIMILAR_T) :
 				return
 
 			# commit to database
@@ -932,8 +939,10 @@ class Psyched(toolkit.Window) :
 			# convert duration to seconds
 			duration = self.dur2sec(self.s2loi(v[ps.DURATION]))
 
-			conflicts = self.backend.fetch_schedule_overlap(ts, duration)
+			if not self.past_dialog(datetime.date(y, mo + 1, d), ps.PAST_S) :
+				return
 
+			conflicts = self.backend.fetch_schedule_overlap(ts, duration)
 			if not self.conflict_dialog(conflicts, ps.CONFLICT_T) :
 				return
 
@@ -1130,28 +1139,46 @@ class Psyched(toolkit.Window) :
 		else :
 			model.set(iter, column, update)
 
+
+	def past_dialog(self, day_of, text) :
+		# determine how many days in the past, if so warn the user with a chance to abort
+		# TODO do not warn if the event overlaps with now?
+		today = datetime.date.today()
+		if day_of < today :
+			days_ago = (today - day_of).days
+			# FIXME future translation problem here....
+			plur = 'days'
+			if days_ago == 1 :
+				plur = 'day'
+			return self.warning_dialog(text % (days_ago, plur))
+		return True
+
 	def conflict_dialog(self, conflicts, text) :
 		if len(conflicts) > 0 :
 			msg = text + '\n'
 			for (id_, body, ts_, dur) in conflicts :
 				msg += '\n' + body
-			rsp = self.response_dialog(ps.CONFLICT, msg, [(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL), (gtk.STOCK_GO_FORWARD, ps.CONTINUE, gtk.RESPONSE_OK)])
-			if rsp == gtk.RESPONSE_CANCEL :
-				return False
-			elif rsp == gtk.RESPONSE_OK :
-				return True
-			elif rsp == gtk.RESPONSE_DELETE_EVENT :
-				return False
-			raise RuntimeError, 'Unknown response code in conflict_dialog()'
+
+			return self.warning_dialog(msg)
 		else :
 			return True
+
+	def warning_dialog(self, msg) :
+		rsp = self.response_dialog(ps.CONFLICT, msg, [(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL), (gtk.STOCK_GO_FORWARD, ps.CONTINUE, gtk.RESPONSE_OK)])
+		if rsp == gtk.RESPONSE_CANCEL :
+			return False
+		elif rsp == gtk.RESPONSE_OK :
+			return True
+		elif rsp == gtk.RESPONSE_DELETE_EVENT :
+			return False
+		raise RuntimeError, 'Unknown response code in warning_dialog()'
 
 	def similar_dialog(self, similarities, text) :
 		if len(similarities) > 0 :
 			msg = text + '\n'
 			for (id_, body, ts_, dur) in similarities :
 				msg += '\n' + body
-			rsp = self.response_dialog(ps.SIMILAR, msg, [(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL), (gtk.STOCK_GO_FORWARD, ps.CONTINUE, gtk.RESPONSE_OK)])
+			rsp = self.response_dialog(ps.SIMILAR_T, msg, [(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL), (gtk.STOCK_GO_FORWARD, ps.CONTINUE, gtk.RESPONSE_OK)])
 			if rsp == gtk.RESPONSE_CANCEL :
 				return False
 			elif rsp == gtk.RESPONSE_OK :
