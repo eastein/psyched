@@ -153,10 +153,12 @@ class PsychedBackend :
 
 	CURRENT_DATAVERSION = 8
 
-	def __init__(self) :
-		d = self.get_directory()
-		os.chdir(d)
-		self.conn = sqlite.connect("psyched.db")
+	def __init__(self, dbfile=None) :
+		if not dbfile :
+			d = self.get_directory()
+			os.chdir(d)
+			dbfile = "psyched.db"
+		self.conn = sqlite.connect(dbfile)
 		self.conn.text_factory = str
 		self.cursor = self.conn.cursor()
 

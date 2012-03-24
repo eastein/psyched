@@ -50,20 +50,31 @@ import psyched_strings as ps
 ) = range(5)
 
 cont = True
-nokia = len(sys.argv) > 1 and sys.argv[1] == 'hildon'
+nokia = False
+dbfile = None
+
+if len(sys.argv) > 1 :
+	nokia = sys.argv[1] == 'hildon'
+if len(sys.argv) > 2 :
+	dbarg = sys.argv[2]
+	if os.path.isfile(dbarg) :
+		dbfile = dbarg
+
 toolkit = gtk
 if nokia :
 	toolkit = hildon
 
 class Psyched(toolkit.Window) :
-	def __init__(self, parent=None) :
+	def __init__(self, parent=None, dbfile=None) :
 		# the following line is rewritten by the makefile.
 		# before making changes consider the effects.
 		iconpath = os.path.join(os.path.realpath(os.curdir), 'share')
 
+		self.dbfile = dbfile
+
 		self.day = datetime.timedelta(days=1)
 		self.begin = datetime.date.today()
-		self.backend = pb.PsychedBackend()
+		self.backend = pb.PsychedBackend(dbfile=self.dbfile)
 
 		iname = 'psyched'
 		if nokia :
@@ -91,7 +102,10 @@ class Psyched(toolkit.Window) :
 		self.sct = self.backend.setting_get(pb.SETTING_SCT)
 
 		# set up window
-		self.set_title(ps.PROGRAM)
+		wintitle = ps.PROGRAM
+		if self.dbfile :
+			wintitle += " (%s)" % self.dbfile
+		self.set_title(wintitle)
 		self.set_default_size(self.xw, self.yw)
 		self.set_border_width(0)
 
@@ -1267,7 +1281,7 @@ def gtkm() :
 		time.sleep(0.02)
 
 if __name__ == '__main__':
-	psyched = Psyched()
+	psyched = Psyched(dbfile=dbfile)
 	try:
 		gtkm()
 	except KeyboardInterrupt:
