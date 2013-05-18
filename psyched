@@ -232,7 +232,7 @@ class Psyched(toolkit.Window) :
 	
 	def show_notifications(self) :
 		if self.notify_backend == None :
-			self.notify_backend = pb.PsychedBackend()
+			self.notify_backend = pb.PsychedBackend(dbfile=self.dbfile)
 		t = pb.utime()
 
 		tasks = []
