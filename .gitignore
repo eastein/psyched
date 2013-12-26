@@ -1,2 +1,4 @@
 psyched.install
 *~
+*.pyc
+*.pyo
