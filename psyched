@@ -56,9 +56,8 @@ dbfile = None
 if len(sys.argv) > 1 :
 	nokia = sys.argv[1] == 'hildon'
 if len(sys.argv) > 2 :
-	dbarg = sys.argv[2]
-	if os.path.isfile(dbarg) :
-		dbfile = dbarg
+	if sys.argv[1] == '-f' :
+		dbfile = sys.argv[2]
 
 toolkit = gtk
 if nokia :
@@ -1273,15 +1272,19 @@ def button_factory(label, stock) :
 	b.set_image(gtk.image_new_from_stock(stock, gtk.ICON_SIZE_BUTTON))
 	return b
 
-def gtkm() :
-	global cont
-	while cont :
-		while gtk.events_pending() :
-			gtk.main_iteration()
-		time.sleep(0.02)
+
 
 if __name__ == '__main__':
 	psyched = Psyched(dbfile=dbfile)
+
+	def gtkm() :
+		global cont
+		while cont :
+			while gtk.events_pending() :
+				gtk.main_iteration()
+			# TODO check backend for state update, cause range_redraw if no fields are currently being modified
+			# how to check that? not sure
+			time.sleep(0.02)
 	try:
 		gtkm()
 	except KeyboardInterrupt:
