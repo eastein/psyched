@@ -8,6 +8,8 @@ License: GPL2/GPL3, at your option.  For details see LICENSE.
 import os
 import sys
 import time
+import uuid
+import threading
 
 try :
 	import sqlite3 as sqlite
@@ -64,6 +66,9 @@ def tod(ts) :
 def fupack(t) :
 	(a, ) = t
 	return a
+
+def getuuid() :
+	return str(uuid.uuid4())
 
 def sec2dur(s) :
 	mins = s / 60
@@ -149,7 +154,7 @@ class PsychedBackend :
 	handles storage, querying, and changes.
 	'''
 
-	CURRENT_DATAVERSION = 8
+	CURRENT_DATAVERSION = 9
 
 	def __init__(self, dbfile=None) :
 		if not dbfile :
@@ -167,14 +172,29 @@ class PsychedBackend :
 			self.create_tables()
 			self.initial_settings()
 			self.conn.commit()
+
+		# TODO during migrating this, use a transaction? or more than one?
 		assert (self.update_dataversion(PsychedBackend.CURRENT_DATAVERSION) == True)
+
+		self.state_updated = False
+		self.state_lock = threading.Lock()
+
+	def statecheck(self) :
+		with self.state_lock :
+			oldstate = self.state_updated
+			self.state_updated = False
+			return oldstate
+
+	def stateupdated(self) :
+		with self.state_lock :
+			self.state_updated = True
 
 #--------------------- INITIALIZATION
 	def create_tables(self) :
 		# create the tables
 		self.cursor.execute('create table settings (id integer primary key, setting blob)')
-		self.cursor.execute('create table task (id integer primary key autoincrement, text blob, due integer null, complete integer)')
-		self.cursor.execute('create table sched (id integer primary key autoincrement, text blob, ts integer, duration integer, complete integer, task integer key)')
+		self.cursor.execute('create table task (id integer primary key autoincrement, text blob, due integer null, complete integer, uuid varchar(36) unique)')
+		self.cursor.execute('create table sched (id integer primary key autoincrement, text blob, ts integer, duration integer, complete integer, task integer key, uuid varchar(36) unique)')
 		self.cursor.execute('create index task_due on task(due)')
 		self.cursor.execute('create index task_complete on task(complete)')
 		self.cursor.execute('create index sched_ts on sched(ts)')
@@ -209,7 +229,8 @@ class PsychedBackend :
 			5 : self.update_rev_5,
 			6 : self.update_rev_6,
 			7 : self.update_rev_7,
-			8 : self.update_rev_8
+			8 : self.update_rev_8,
+			9 : self.update_rev_9
 		}
 		assert (PsychedBackend.CURRENT_DATAVERSION in updict)
 
@@ -259,6 +280,28 @@ class PsychedBackend :
 		self.cursor.execute('create index sched_complete on sched(complete)')
 		self.cursor.execute('create index task_due on task(due)')
 		return True
+
+	def update_rev_9(self) :
+		for table in ['task', 'sched'] :
+			self.cursor.execute('alter table %s add column uuid varchar(36)' % table)
+			# can't change the uniqueness of uuid directly via a table alter 
+			# going to have to do some junk to make this work.
+			# want the old primary key id to go away or not? probably not,
+			# as the rest of the code already works with it as an integer. perhaps it's best
+			# to make the uuid column only get used for communication between instances,
+			# wheras the integer id is used for local operation. it's always going to exist anyway.
+			idsets = []
+			for i in [fupack(r) for r in self.cursor.execute('select id from %s' % table).fetchall()] :
+				idsets.append((i, getuuid()))
+
+			for i,u in idsets :
+				self.cursor.execute('update %s set uuid=? where id=?' % table, (u, i))
+
+		# FIXME XXX TODO
+		# insert-from into temporary table, rename table, create new table with unique constraint, insert back, drop
+
+		return True
+
 
 #--------------------- TRANSACTION SAFETY
 	def action_complete(self) :
@@ -311,11 +354,11 @@ class PsychedBackend :
 
 #--------------------- ADDERS
 	def insert_task(self, text, due) :
-		self.cursor.execute('insert into task (text, due, complete) values (?, ?, ?)', (text, due, 0))
+		self.cursor.execute('insert into task (text, due, complete, uuid) values (?, ?, ?, ?)', (text, due, 0, getuuid()))
 		return self.cursor.lastrowid
 
 	def insert_sched(self, text, ts, duration, complete, task) :
-		self.cursor.execute('insert into sched (text, ts, duration, complete, task) values (?, ?, ?, ?, ?)', (text, ts, duration, complete, task))
+		self.cursor.execute('insert into sched (text, ts, duration, complete, task, uuid) values (?, ?, ?, ?, ?, ?)', (text, ts, duration, complete, task, getuuid()))
 		return self.cursor.lastrowid
 
 #--------------------- REMOVERS
