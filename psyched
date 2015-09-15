@@ -155,11 +155,10 @@ class Psyched(toolkit.Window) :
 		rangeh.pack_start(bn, expand=False)
 		rangeh.pack_start(self.csb, expand=False)
 
-		if nokia :
-			prefs_button = gtk.Button()
-			prefs_button.set_label(ps.PREFS)
-			prefs_button.connect("clicked", self.edit_configuration)
-			rangeh.pack_start(prefs_button, expand=False)
+		prefs_button = gtk.Button()
+		prefs_button.set_label(ps.PREFS)
+		prefs_button.connect("clicked", self.edit_configuration)
+		rangeh.pack_start(prefs_button, expand=False)
 
 		self.controls = rangeh
 
